@@ -9,18 +9,11 @@
 	@ondragenter="HandleDragEnter"
 	@ondragleave="HandleDragLeave">
 
-	@for (int i = 0; i < Components.Count; ++i)
+	@for (int i = 0; i < components.Count; ++i)
 	{
 		int _i = i;
-		<div class="component draggable" draggable="true" @ondragstart="@(() => HandleDragStart(_i))" @ref="componentContainer">
-			@if (otherInstances[_i] != null)
-			{
-				@otherInstances[_i]
-			}
-			else
-			{
-				<DynamicComponent Type="@(Components[_i])" Parameters="parameters" @ref="componentInstances[_i]" />
-			}
+		<div class="component draggable" draggable="true" @ondragstart="@(() => HandleDragStart(_i))">
+			<DynamicComponent Type="@(components[_i])" Parameters="@(parameters[_i])" @ref="dynamicComponents[_i]"/>
 		</div>
 	}
 </ul>
@@ -32,16 +25,10 @@
 	[Parameter] public bool DesignMode { get; set; }
 	[Parameter] public string StyleClass { get; set; } = "drop-area-vertical";
 
-	private object? componentContainer;
-
 	private string dropClass = "";
-	private List<Type> Components = new List<Type>();
-	private List<DynamicComponent> componentInstances = new List<DynamicComponent>();
-	private List<ComponentBase> otherInstances = new List<ComponentBase>();
-	private Dictionary<string, object> parameters = new Dictionary<string, object>()
-	{
-		{ "DesignMode", true }
-	};
+	private List<Type> components = new List<Type>();
+	private List<DynamicComponent> dynamicComponents = new List<DynamicComponent>();
+	private List<Dictionary<string, object>> parameters = new List<Dictionary<string, object>>();
 
 	private void HandleDragEnter()
 	{
@@ -56,40 +43,51 @@
 	private void HandleDrop()
 	{
 		dropClass = "";
-		if ((Container.Payload != null || Container.PayloadComponent != null) && !PreviewMode)
+		if (Container.Payload != null && !PreviewMode)
 		{
-			if (Container.PayloadComponent != null)
+			if (Container.Payload.Caller != null)
+				Container.Payload.Caller.RemoveComponent(Container.Payload.CallerIndex);
+
+			components.Add(Container.Payload.ComponentType);
+			parameters.Add(Container.Payload.Parameters);
+			dynamicComponents.Add(null);
+			Container.Payload = null;
+		}
+	}
+
+	private void UpdateParameters(int index)
+	{
+		var instance = dynamicComponents[index].Instance;
+		var properties = parameters[index];
+		properties.Clear();
+		foreach (var propertyInfo in components[index].GetProperties())
+		{
+			if (propertyInfo.GetCustomAttributes(typeof(ParameterAttribute), true).Length > 0)
 			{
-				Components.Add(Container.PayloadComponent.Instance.Instance.GetType());
-				otherInstances.Add((ComponentBase)Container.PayloadComponent.Instance.Instance);
-				componentInstances.Add(null);
-				Container.PayloadComponent.Caller.RemoveComponent(Container.PayloadComponent.CallerIndex);
-				Container.PayloadComponent = null;
-			}
-			else
-			{
-				Components.Add(Container.Payload);
-				otherInstances.Add(null);
-				componentInstances.Add(null);
-				Container.Payload = null;
+				properties.Add(propertyInfo.Name, propertyInfo.GetValue(instance));
 			}
 		}
 	}
 
 	private void HandleDragStart(int index)
 	{
-		System.Diagnostics.Trace.WriteLine(index);
-		Container.PayloadComponent = new DragInformation()
-			{
-				Instance = componentInstances[index],
-				CallerIndex = index,
-				Caller = this,
-			};
+		if (Container.Payload == null)
+		{
+			UpdateParameters(index);
+			Container.Payload = new DragInformation()
+				{
+					ComponentType = components[index],
+					Parameters = parameters[index],
+					Caller = this,
+					CallerIndex = index,
+				};
+		}
 	}
 
 	private void RemoveComponent(int index)
 	{
-		Components.RemoveAt(index);
-		componentInstances.RemoveAt(index);
+		components.RemoveAt(index);
+		parameters.RemoveAt(index);
+		StateHasChanged();
 	}
 }

@@ -1,7 +1,7 @@
 ﻿@using LayoutDesigner.Interfaces
 @implements ILayoutComponent
 
-<MudCard inert="@(PreviewMode || DesignMode)">
+<MudCard inert="@(PreviewMode)">
 	<MudCardHeader>
 		@(PreviewMode ? "Speed" : Label)
 	</MudCardHeader>

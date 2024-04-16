@@ -1,5 +1,6 @@
 @using System.Reflection
 @using LayoutDesigner.Interfaces
+@using LayoutDesigner.Models
 <ul class="component-list">
 @foreach (var component in Components)
 {
@@ -34,6 +35,13 @@
 
 	private void HandleDragStart(Type componentType)
 	{
-		Container.Payload = componentType;
+		Container.Payload = new DragInformation()
+			{
+				ComponentType = componentType,
+				Parameters = new Dictionary<string, object>()
+				{
+					{ "DesignMode", true }
+				}
+			};
 	}
 }
