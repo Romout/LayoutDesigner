@@ -1,0 +1,39 @@
+@using System.Reflection
+@using LayoutDesigner.Interfaces
+<ul class="component-list">
+@foreach (var component in Components)
+{
+	RenderFragment renderFragment = (builder) => { 
+		builder.OpenComponent(0, component); 
+		builder.AddAttribute(1, nameof(ILayoutComponent.PreviewMode), true); 
+		builder.CloseComponent(); 
+	};
+	
+	<li class="draggable" draggable="true" @ondragstart="@(() => HandleDragStart(component))">
+		@renderFragment
+	</li>
+	<li class="component-label">@(component.Name)</li>
+}
+</ul>
+
+@code {
+
+	[CascadingParameter] Container? Container { get; set; }
+
+	public List<Type> Components { get; set; } = new List<Type>();
+
+	protected override void OnInitialized()
+	{
+		base.OnInitialized();
+
+		Assembly.GetExecutingAssembly().GetTypes()
+			.Where(t => t.Namespace == "LayoutDesigner.Components" && typeof(ILayoutComponent).IsAssignableFrom(t))
+			.ToList()
+			.ForEach(t => Components.Add(t));
+	}
+
+	private void HandleDragStart(Type componentType)
+	{
+		Container.Payload = componentType;
+	}
+}
