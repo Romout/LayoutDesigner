@@ -1,4 +1,5 @@
-﻿@code {
+﻿@using LayoutDesigner.Models
+@code {
 	[CascadingParameter] Selectable? Selectable { get; set; }
 
 	[Parameter]
@@ -9,6 +10,9 @@
 
 	[Parameter]
 	public bool DesignMode { get; set; }
+
+	[Parameter]
+	public LayoutControlData? LayoutControlData { get; set; }
 
 	protected override void OnParametersSet()
 	{

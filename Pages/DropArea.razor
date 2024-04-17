@@ -4,21 +4,22 @@
 @inherits LayoutComponent
 @implements ILayoutComponent
 
-<ul class="dropzone @StyleClass @dropClass"
+<ul class="dropzone @(dropClass != "" ? dropClass : "dropzone-border") @StyleClass"
 	ondragover="event.preventDefault();"
 	ondragstart="event.dataTransfer.setData('', event.target.id);"
 	@ondrop="HandleDrop"
 	@ondragenter="HandleDragEnter"
 	@ondragleave="HandleDragLeave">
 
-	@for (int i = 0; i < components.Count; ++i)
+	@if (LayoutControlData?.Children != null)
 	{
-		int _i = i;
-		<Selectable>
-			<div class="component draggable" draggable="true" @ondragstart="@(() => HandleDragStart(_i))">
-				<DynamicComponent Type="@(components[_i])" Parameters="@(parameters[_i])" @ref="dynamicComponents[_i]"/>
+		for (int i = 0; i < LayoutControlData.Children.Count; ++i)
+		{
+			int _i = i;
+			<div class="component draggable" draggable="true" @ondragstart="@(() => HandleDragStart(_i))" @ondrop:stopPropagation="LayoutControlData.Children[_i].IsContainer">
+				<LayoutControl Data="LayoutControlData.Children[_i]" @ref="_controls[_i]"/>
 			</div>
-		</Selectable>
+		}
 	}
 </ul>
 
@@ -28,13 +29,14 @@
 	[Parameter] public string StyleClass { get; set; } = "drop-area-vertical";
 
 	private string dropClass = "";
-	private List<Type> components = new List<Type>();
-	private List<DynamicComponent> dynamicComponents = new List<DynamicComponent>();
-	private List<Dictionary<string, object>> parameters = new List<Dictionary<string, object>>();
+	private List<LayoutControl> _controls = new List<LayoutControl>();
 
 	private void HandleDragEnter()
 	{
-		dropClass = PreviewMode ? "no-drop" : "can-drop";
+		if (PreviewMode || (Container?.Payload != null && LayoutControlData != null && LayoutControlData.Children.Contains(Container.Payload)))
+			dropClass = "no-drop";
+		else
+			dropClass ="can-drop";
 	}
 
 	private void HandleDragLeave()
@@ -44,32 +46,26 @@
 
 	private void HandleDrop()
 	{
-		dropClass = "";
-		object? instance = Container?.Payload?.Instance;
-		// check if instance is either a Horizontal- or Vertical Panel and, if so, get its DropArea for the comparison instead
-		if (instance is IDropAreaContainer container)
-			instance = container.DropArea;
-
-		if (Container.Payload != null && !PreviewMode && instance != this)
+		if (LayoutControlData?.Children != null && Container?.Payload != null && !LayoutControlData.Children.Contains(Container.Payload))
 		{
-			if (Container.Payload.Caller != null)
-				Container.Payload.Caller.RemoveComponent(Container.Payload.CallerIndex);
-
-			components.Add(Container.Payload.ComponentType);
-			parameters.Add(Container.Payload.Parameters);
-			dynamicComponents.Add(null);
+			LayoutControlData.Children.Add(Container.Payload);
+			if (Container.Payload.DragSource != null)
+				Container.Payload.DragSource.RemoveChild(Container.Payload);
+			_controls.Add(null);
 			Container.Payload = null;
+			StateHasChanged();
 		}
+		dropClass = "";
 	}
 
 	private void UpdateParameters(int index)
 	{
-		var instance = dynamicComponents[index].Instance;
-		var properties = parameters[index];
+		var instance = _controls[index].GetLayoutComponent();
+		var properties = LayoutControlData.Children[index].Parameters;
 		properties.Clear();
-		foreach (var propertyInfo in components[index].GetProperties())
+		foreach (var propertyInfo in LayoutControlData.Children[index].Type.GetProperties())
 		{
-			if (propertyInfo.GetCustomAttributes(typeof(ParameterAttribute), true).Length > 0)
+			if (propertyInfo.GetCustomAttributes(typeof(ParameterAttribute), true).Length > 0 && propertyInfo.Name != nameof(LayoutComponent.LayoutControlData))
 			{
 				properties.Add(propertyInfo.Name, propertyInfo.GetValue(instance));
 			}
@@ -81,21 +77,14 @@
 		if (Container != null && Container.Payload == null)
 		{
 			UpdateParameters(index);
-			Container.Payload = new DragInformation()
-				{
-					ComponentType = components[index],
-					Parameters = parameters[index],
-					Instance = dynamicComponents[index]?.Instance,
-					Caller = this,
-					CallerIndex = index,
-				};
+			Container.Payload = LayoutControlData.Children[index];
+			Container.Payload.DragSource = this;
 		}
 	}
 
-	private void RemoveComponent(int index)
+	private void RemoveChild(LayoutControlData childData)
 	{
-		components.RemoveAt(index);
-		parameters.RemoveAt(index);
+		LayoutControlData.Children.Remove(childData);
 		StateHasChanged();
 	}
 }

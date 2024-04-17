@@ -35,14 +35,17 @@
 
 	private void HandleDragStart(Type componentType)
 	{
-		Container.Payload = new DragInformation()
+		bool isContainer = typeof(IDropAreaContainer).IsAssignableFrom(componentType);
+		Container.Payload = new LayoutControlData()
 			{
-				ComponentType = componentType,
+				Type = componentType,
 				Parameters = new Dictionary<string, object>()
 				{
 					{ "Id", Guid.NewGuid() },
 					{ "DesignMode", true },
-				}
+				},
+				Selectable = true,
+				IsContainer = isContainer
 			};
 	}
 }

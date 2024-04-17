@@ -1,0 +1,31 @@
+﻿@using LayoutDesigner.Models
+
+<Selectable HideSelection="@(Data != null ? !Data.Selectable : true)">
+	@if (Data != null)
+	{
+		<DynamicComponent Type="Data.Type" Parameters="GetParameters()" @ref="_dynamicComponent" />
+	}
+</Selectable>
+
+@code {
+
+	[Parameter] public LayoutControlData? Data { get; set; }
+	private DynamicComponent? _dynamicComponent;
+
+	IDictionary<string, object> GetParameters()
+	{
+		if (Data != null)
+		{
+			Dictionary<string, object> parameters = new Dictionary<string, object>(Data.Parameters);
+			parameters.Add(nameof(LayoutComponent.LayoutControlData), Data);
+			return parameters;
+		}
+		else
+			return new Dictionary<string, object>();
+	}
+
+	public LayoutComponent? GetLayoutComponent()
+	{
+		return (LayoutComponent?)_dynamicComponent?.Instance;
+	}
+}

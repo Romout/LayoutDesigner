@@ -4,7 +4,7 @@
 @implements ILayoutComponent
 @implements IDropAreaContainer
 
-<DropArea StyleClass="drop-area-vertical" PreviewMode="PreviewMode" DesignMode="DesignMode" @ref="DropArea"></DropArea>
+<DropArea StyleClass="drop-area-vertical" PreviewMode="PreviewMode" DesignMode="DesignMode" @ref="DropArea" LayoutControlData="LayoutControlData"></DropArea>
 
 @code {
 	[CascadingParameter] Container? Container { get; set; }

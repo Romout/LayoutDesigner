@@ -61,10 +61,13 @@
 .dropzone {
     display: flex;
     padding: 30px;
-    border: 1px dashed #75868a;
     list-style: none;
     justify-content: flex-start;
     align-items: flex-start;
+}
+
+.dropzone-border {
+    border: 1px dashed #75868a;
 }
 
 .no-drop {
