@@ -98,3 +98,7 @@
     text-align: center;
     margin-bottom: 30px;
 }
+
+.selected {
+    border: solid 2px lightgreen;
+}

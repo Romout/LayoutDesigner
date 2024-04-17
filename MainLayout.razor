@@ -1,15 +1,17 @@
 ﻿@using LayoutDesigner.Pages
+@implements IDisposable
 @inherits LayoutComponentBase
 <MudThemeProvider />
 <MudDialogProvider />
 <MudSnackbarProvider />
 
 <MudLayout>
-	<MudAppBar>
-		<MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
-		Layout Designer
-	</MudAppBar>
-	<Container>
+	<Container @ref="Container">
+		<MudAppBar>
+			<MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
+			Layout Designer
+			<MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Inherit" Edge="Edge.End" @onclick="Container.DeleteSelectedComponent" Disabled="@(!_isComponentSelected)"/>
+		</MudAppBar>
 		<MudDrawer @bind-Open="@_drawerOpen">
 			<ComponentList/>
 		</MudDrawer>
@@ -20,10 +22,33 @@
 </MudLayout>
 
 @code {
+	private Container? Container { get; set; }
+
 	bool _drawerOpen = true;
+	bool _isComponentSelected = false;
 
 	void DrawerToggle()
 	{
 		_drawerOpen = !_drawerOpen;
+	}
+
+	protected override void OnAfterRender(bool firstRender)
+	{
+		base.OnAfterRender(firstRender);
+
+		if (firstRender && Container != null)
+			Container.SelectionChanged += OnSelectionChanged;
+	}
+
+	void IDisposable.Dispose()
+	{
+		if (Container != null)
+			Container.SelectionChanged -= OnSelectionChanged;
+	}
+
+	private void OnSelectionChanged(Guid id)
+	{
+		_isComponentSelected = id != Guid.Empty;
+		StateHasChanged();
 	}
 }

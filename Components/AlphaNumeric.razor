@@ -1,4 +1,5 @@
 ﻿@using LayoutDesigner.Interfaces
+@inherits LayoutComponent
 @implements ILayoutComponent
 
 <MudCard inert="@(PreviewMode)">
@@ -23,10 +24,4 @@
 
 	[Parameter]
 	public double Value { get; set; }
-
-	[Parameter]
-	public bool PreviewMode { get; set; }
-	
-	[Parameter] 
-	public bool DesignMode { get; set; }
 }

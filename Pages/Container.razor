@@ -11,4 +11,18 @@
 	public RenderFragment? ChildContent { get; set; }
 
 	public DragInformation? Payload { get; set; }
+
+	public Guid SelectedId { get; private set; } = Guid.Empty;
+	public event Action<Guid>? SelectionChanged;
+
+	public void Select(Guid id)
+	{
+		SelectedId = id;
+		SelectionChanged?.Invoke(id);
+	}
+
+	public void DeleteSelectedComponent()
+	{
+		
+	}
 }

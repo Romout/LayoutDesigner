@@ -1,12 +1,13 @@
 ﻿@using LayoutDesigner.Interfaces
 @using LayoutDesigner.Pages
+@inherits LayoutComponent
 @implements ILayoutComponent
+@implements IDropAreaContainer
 
-<DropArea StyleClass="drop-area-vertical" PreviewMode="PreviewMode" DesignMode="DesignMode"></DropArea>
+<DropArea StyleClass="drop-area-vertical" PreviewMode="PreviewMode" DesignMode="DesignMode" @ref="DropArea"></DropArea>
 
 @code {
 	[CascadingParameter] Container? Container { get; set; }
 
-	[Parameter] public bool PreviewMode { get; set; }
-	[Parameter] public bool DesignMode { get; set; }
+	public DropArea? DropArea { get; private set; }
 }

@@ -1,5 +1,7 @@
-﻿@using LayoutDesigner.Interfaces
+﻿@using LayoutDesigner.Components
+@using LayoutDesigner.Interfaces
 @using LayoutDesigner.Models
+@inherits LayoutComponent
 @implements ILayoutComponent
 
 <ul class="dropzone @StyleClass @dropClass"
@@ -12,17 +14,17 @@
 	@for (int i = 0; i < components.Count; ++i)
 	{
 		int _i = i;
-		<div class="component draggable" draggable="true" @ondragstart="@(() => HandleDragStart(_i))">
-			<DynamicComponent Type="@(components[_i])" Parameters="@(parameters[_i])" @ref="dynamicComponents[_i]"/>
-		</div>
+		<Selectable>
+			<div class="component draggable" draggable="true" @ondragstart="@(() => HandleDragStart(_i))">
+				<DynamicComponent Type="@(components[_i])" Parameters="@(parameters[_i])" @ref="dynamicComponents[_i]"/>
+			</div>
+		</Selectable>
 	}
 </ul>
 
 @code {
 	[CascadingParameter] Container? Container { get; set; }
 
-	[Parameter] public bool PreviewMode { get; set; }
-	[Parameter] public bool DesignMode { get; set; }
 	[Parameter] public string StyleClass { get; set; } = "drop-area-vertical";
 
 	private string dropClass = "";
@@ -43,7 +45,12 @@
 	private void HandleDrop()
 	{
 		dropClass = "";
-		if (Container.Payload != null && !PreviewMode)
+		object? instance = Container?.Payload?.Instance;
+		// check if instance is either a Horizontal- or Vertical Panel and, if so, get its DropArea for the comparison instead
+		if (instance is IDropAreaContainer container)
+			instance = container.DropArea;
+
+		if (Container.Payload != null && !PreviewMode && instance != this)
 		{
 			if (Container.Payload.Caller != null)
 				Container.Payload.Caller.RemoveComponent(Container.Payload.CallerIndex);
@@ -71,13 +78,14 @@
 
 	private void HandleDragStart(int index)
 	{
-		if (Container.Payload == null)
+		if (Container != null && Container.Payload == null)
 		{
 			UpdateParameters(index);
 			Container.Payload = new DragInformation()
 				{
 					ComponentType = components[index],
 					Parameters = parameters[index],
+					Instance = dynamicComponents[index]?.Instance,
 					Caller = this,
 					CallerIndex = index,
 				};
