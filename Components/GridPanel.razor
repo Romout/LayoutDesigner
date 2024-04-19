@@ -1,0 +1,47 @@
+﻿@using LayoutDesigner.Interfaces
+@using LayoutDesigner.Pages
+@using LayoutDesigner.Models
+@inherits LayoutComponent
+@implements ILayoutComponent
+@implements IDropAreaContainer
+
+<table>
+@for (int r = 0; r < Rows; ++r)
+{
+	<tr>
+	@for (int c = 0; c < Columns; ++c)
+	{
+		<CascadingValue Value="ChildData[r, c]">
+			<td><VerticalPanel></VerticalPanel></td>
+		</CascadingValue>
+	}
+	</tr>
+}
+</table>
+
+@code {
+	[Parameter] public int Rows { get; set; } = 4;
+	[Parameter] public int Columns { get; set; } = 4;
+	[Parameter] public LayoutControlData[,]? ChildData { get; set; }
+
+	protected override void OnParametersSet()
+	{
+		if (ChildData == null || ChildData.GetLength(0) != Rows || ChildData.GetLength(1) != Columns)
+		{
+			ChildData = new LayoutControlData[Rows, Columns];
+			for (int r = 0; r < Rows; ++r)
+			{
+				for (int c= 0; c < Columns; ++c)
+				{
+					ChildData[r, c] = new LayoutControlData()
+						{
+							Type = typeof(VerticalPanel),
+							IsContainer = true,
+							Selectable = false,
+						};
+				}
+			}
+		}
+		base.OnParametersSet();
+	}
+}

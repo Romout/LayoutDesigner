@@ -4,6 +4,5 @@ namespace LayoutDesigner.Interfaces
 {
 	public interface IDropAreaContainer
 	{
-		DropArea? DropArea { get; }
 	}
 }

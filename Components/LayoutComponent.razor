@@ -37,11 +37,12 @@
 	{
 		if (_autoBindParameters && LayoutControlData?.Parameters != null)
 		{
+			var bla = view.ToDictionary();
 			var parameters = LayoutControlData.Parameters;
 			var properties = GetProperties();
 			foreach (var property in properties)
 			{
-				if (!parameters.ContainsKey(property.Name) || parameters[property.Name] != property.Value)
+				if (!parameters.ContainsKey(property.Name) || !Equals(parameters[property.Name], property.Value))
 					parameters[property.Name] = property.Value;
 			}
 		}

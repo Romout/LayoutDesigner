@@ -10,4 +10,12 @@
     <PackageReference Include="MudBlazor" Version="6.19.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Components\GridPanel.razor" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="Components\GridPanel.razor" />
+  </ItemGroup>
+
 </Project>
