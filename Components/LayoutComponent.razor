@@ -1,7 +1,7 @@
 ﻿@using LayoutDesigner.Models
+@using System.Reflection
+@using LayoutDesigner.Pages
 @code {
-	[CascadingParameter] Selectable? Selectable { get; set; }
-
 	[Parameter]
 	public Guid Id { get; set; }
 
@@ -11,13 +11,40 @@
 	[Parameter]
 	public bool DesignMode { get; set; }
 
-	[Parameter]
+	[CascadingParameter]
+	public Container? Container { get; set; }
+
+	[CascadingParameter]
 	public LayoutControlData? LayoutControlData { get; set; }
 
-	protected override void OnParametersSet()
+	protected bool _autoBindParameters = true;
+
+	private bool _containerEventsRegistered = false;
+	private PropertyInfo[] _properties;
+
+	public IEnumerable<(string Name, object Value, Type type)> GetProperties()
 	{
-		base.OnParametersSet();
-		if (Selectable != null)
-			Selectable.SetId(Id);
+		if (_properties == null)
+			_properties = GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
+		foreach (var property in _properties)
+		{
+			if (property.GetCustomAttribute<ParameterAttribute>() != null)
+				yield return (property.Name, property.GetValue(this), property.PropertyType);
+		}
+	}
+
+	public override Task SetParametersAsync(ParameterView view)
+	{
+		if (_autoBindParameters && LayoutControlData?.Parameters != null)
+		{
+			var parameters = LayoutControlData.Parameters;
+			var properties = GetProperties();
+			foreach (var property in properties)
+			{
+				if (!parameters.ContainsKey(property.Name) || parameters[property.Name] != property.Value)
+					parameters[property.Name] = property.Value;
+			}
+		}
+		return base.SetParametersAsync(view);
 	}
 }

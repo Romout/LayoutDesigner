@@ -1,31 +1,49 @@
 ﻿@using LayoutDesigner.Models
+@using LayoutDesigner.Pages
+@implements IDisposable
 
-<Selectable HideSelection="@(Data != null ? !Data.Selectable : true)">
-	@if (Data != null)
+	@if (LayoutControlData != null)
 	{
-		<DynamicComponent Type="Data.Type" Parameters="GetParameters()" @ref="_dynamicComponent" />
-	}
-</Selectable>
+		<CascadingValue Value="LayoutControlData">
+			<Selectable HideSelection="@(LayoutControlData != null ? !LayoutControlData.Selectable : true)">
+					<DynamicComponent Type="LayoutControlData.Type" Parameters="LayoutControlData.Parameters" @ref="_dynamicComponent" />
+			</Selectable>
+		</CascadingValue>
+}
 
 @code {
 
-	[Parameter] public LayoutControlData? Data { get; set; }
-	private DynamicComponent? _dynamicComponent;
+	[Parameter] public LayoutControlData? LayoutControlData { get; set; }
 
-	IDictionary<string, object> GetParameters()
-	{
-		if (Data != null)
-		{
-			Dictionary<string, object> parameters = new Dictionary<string, object>(Data.Parameters);
-			parameters.Add(nameof(LayoutComponent.LayoutControlData), Data);
-			return parameters;
-		}
-		else
-			return new Dictionary<string, object>();
-	}
+	[CascadingParameter]
+	public Container? Container { get; set; }
+
+	private DynamicComponent? _dynamicComponent;
+	private bool _containerEventsRegistered = false;
 
 	public LayoutComponent? GetLayoutComponent()
 	{
 		return (LayoutComponent?)_dynamicComponent?.Instance;
+	}
+
+	protected override void OnParametersSet()
+	{
+		if (Container != null && !_containerEventsRegistered)
+		{
+			Container.StateChanged += OnStateChanged;
+			_containerEventsRegistered = true;
+		}
+	}
+
+	void IDisposable.Dispose()
+	{
+		if (Container != null)
+			Container.StateChanged -= OnStateChanged;
+	}
+
+	private void OnStateChanged(LayoutControlData data)
+	{
+		if (data == LayoutControlData)
+			StateHasChanged();
 	}
 }

@@ -15,8 +15,9 @@
 
 	public LayoutControlData Root { get; set; }
 
-	public Guid SelectedId { get; private set; } = Guid.Empty;
-	public event Action<Guid>? SelectionChanged;
+	public LayoutControlData? Selection { get; private set; }
+	public event Action<LayoutControlData?>? SelectionChanged;
+	public event Action<LayoutControlData?>? StateChanged;
 
 	public Container()
 	{
@@ -26,14 +27,26 @@
 				Selectable = false,
 			};
 	}
-	public void Select(Guid id)
+	public void Select(LayoutControlData? selectedData)
 	{
-		SelectedId = id;
-		SelectionChanged?.Invoke(id);
+		if (Selection != selectedData)
+		{
+			Selection = selectedData;
+			SelectionChanged?.Invoke(selectedData);
+		}
 	}
 
 	public void DeleteSelectedComponent()
 	{
-		
+		if (Selection != null)
+		{
+			Root.Remove(Selection);
+			StateHasChanged();
+		}
+	}
+
+	public void NotifyStateChanged(LayoutControlData data)
+	{
+		StateChanged?.Invoke(data);
 	}
 }

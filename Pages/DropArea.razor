@@ -4,7 +4,7 @@
 @inherits LayoutComponent
 @implements ILayoutComponent
 
-<ul class="dropzone @(dropClass != "" ? dropClass : "dropzone-border") @StyleClass"
+<div class="dropzone @(dropClass != "" ? dropClass : "dropzone-border") @StyleClass"
 	ondragover="event.preventDefault();"
 	ondragstart="event.dataTransfer.setData('', event.target.id);"
 	@ondrop="HandleDrop"
@@ -17,19 +17,21 @@
 		{
 			int _i = i;
 			<div class="component draggable" draggable="true" @ondragstart="@(() => HandleDragStart(_i))" @ondrop:stopPropagation="LayoutControlData.Children[_i].IsContainer">
-				<LayoutControl Data="LayoutControlData.Children[_i]" @ref="_controls[_i]"/>
+				<LayoutControl LayoutControlData="LayoutControlData.Children[_i]" />
 			</div>
 		}
 	}
-</ul>
+</div>
 
 @code {
-	[CascadingParameter] Container? Container { get; set; }
-
 	[Parameter] public string StyleClass { get; set; } = "drop-area-vertical";
 
 	private string dropClass = "";
-	private List<LayoutControl> _controls = new List<LayoutControl>();
+	protected override void OnInitialized()
+	{
+		base.OnInitialized();
+		_autoBindParameters = false;
+	}
 
 	private void HandleDragEnter()
 	{
@@ -49,34 +51,20 @@
 		if (LayoutControlData?.Children != null && Container?.Payload != null && !LayoutControlData.Children.Contains(Container.Payload))
 		{
 			LayoutControlData.Children.Add(Container.Payload);
+
 			if (Container.Payload.DragSource != null)
 				Container.Payload.DragSource.RemoveChild(Container.Payload);
-			_controls.Add(null);
+
 			Container.Payload = null;
 			StateHasChanged();
 		}
 		dropClass = "";
 	}
 
-	private void UpdateParameters(int index)
-	{
-		var instance = _controls[index].GetLayoutComponent();
-		var properties = LayoutControlData.Children[index].Parameters;
-		properties.Clear();
-		foreach (var propertyInfo in LayoutControlData.Children[index].Type.GetProperties())
-		{
-			if (propertyInfo.GetCustomAttributes(typeof(ParameterAttribute), true).Length > 0 && propertyInfo.Name != nameof(LayoutComponent.LayoutControlData))
-			{
-				properties.Add(propertyInfo.Name, propertyInfo.GetValue(instance));
-			}
-		}
-	}
-
 	private void HandleDragStart(int index)
 	{
-		if (Container != null && Container.Payload == null)
+		if (Container != null && Container.Payload == null && LayoutControlData?.Children != null)
 		{
-			UpdateParameters(index);
 			Container.Payload = LayoutControlData.Children[index];
 			Container.Payload.DragSource = this;
 		}
@@ -84,7 +72,10 @@
 
 	private void RemoveChild(LayoutControlData childData)
 	{
-		LayoutControlData.Children.Remove(childData);
-		StateHasChanged();
+		if (LayoutControlData?.Children != null)
+		{
+			LayoutControlData.Children.Remove(childData);
+			StateHasChanged();
+		}
 	}
 }

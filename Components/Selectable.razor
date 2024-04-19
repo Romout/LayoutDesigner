@@ -1,35 +1,37 @@
-﻿@using LayoutDesigner.Pages
+﻿@using LayoutDesigner.Models
+@using LayoutDesigner.Pages
 @implements IDisposable
 
 <div class="@selectedClass" @onclick="Select" @onclick:stopPropagation="true">
-	<CascadingValue Value="this">
-		@ChildContent
-	</CascadingValue>
+	@ChildContent
 </div>
 
 @code {
 	[CascadingParameter] Container? Container { get; set; }
+	[CascadingParameter] public LayoutControlData? LayoutControlData { get; set; }
+
 	[Parameter] public RenderFragment? ChildContent { get; set; }
 	[Parameter] public bool HideSelection { get; set; }
+
+	private bool _containerEventsRegistered = false;
 	private Guid _id;
 	private string selectedClass = "";
 
 	private void Select()
 	{
-		Container?.Select(_id);
-	}
-
-	public void SetId(Guid id)
-	{
-		_id = id;
+		if (LayoutControlData != null && LayoutControlData.Selectable)
+			Container?.Select(LayoutControlData);
 	}
 
 	protected override void OnParametersSet()
 	{
 		base.OnParametersSet();
 
-		if (Container != null)
+		if (Container != null && !_containerEventsRegistered) 
+		{
 			Container.SelectionChanged += OnSelectionChanged;
+			_containerEventsRegistered = true;
+		}
 	}
 
 	void IDisposable.Dispose()
@@ -38,9 +40,8 @@
 			Container.SelectionChanged -= OnSelectionChanged;
 	}
 
-	private void OnSelectionChanged(Guid id)
+	private void OnSelectionChanged(LayoutControlData selectedData)
 	{
-		selectedClass = (id == _id && !HideSelection) ? "selected" : "";
-		StateHasChanged();
+		selectedClass = (selectedData == LayoutControlData && !HideSelection) ? "selected" : "";
 	}
 }

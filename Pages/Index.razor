@@ -1,7 +1,7 @@
 ﻿@page "/"
 @using LayoutDesigner.Components
 
-<LayoutControl Data="Container?.Root"></LayoutControl>
+<LayoutControl LayoutControlData="Container?.Root"></LayoutControl>
 
 @code {
 	[CascadingParameter] public Container? Container { get; set; }
