@@ -1,6 +1,6 @@
 ﻿@using LayoutDesigner.Models
 @using LayoutDesigner.Pages
-@*@implements IDisposable*@
+@implements IDisposable
 
 <div class="@selectedClass" @onclick="Select" @onclick:stopPropagation="true">
 	@ChildContent
@@ -22,7 +22,7 @@
 		if (LayoutControlData != null && LayoutControlData.Selectable)
 			Container?.Select(LayoutControlData);
 	}
-	/*
+	
 	protected override void OnParametersSet()
 	{
 		base.OnParametersSet();
@@ -43,5 +43,5 @@
 	private void OnSelectionChanged(LayoutControlData selectedData)
 	{
 		selectedClass = (selectedData == LayoutControlData && !HideSelection) ? "selected" : "";
-	}*/
+	}
 }
