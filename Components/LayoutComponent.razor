@@ -15,7 +15,8 @@
 	public bool DesignMode { get; set; }
 
 	[Parameter]
-	public string? Margin { get; set; }
+	[PropertyGridUIEditor(typeof(UITypeEditors.MarginUITypeEditor))]
+	public Models.Margin Margin { get; set; } = new Models.Margin();
 
 	[CascadingParameter]
 	public Container? Container { get; set; }
@@ -31,10 +32,11 @@
 	public IEnumerable<(string Name, object Value, Type type)> GetProperties()
 	{
 		if (_properties == null)
-			_properties = GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
+			_properties = GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
 		foreach (var property in _properties)
 		{
-			if (property.GetCustomAttribute<ParameterAttribute>() != null)
+			if (property.GetCustomAttribute<ParameterAttribute>() != null && 
+				property.GetCustomAttribute<CascadingParameterAttribute>() == null)
 				yield return (property.Name, property.GetValue(this), property.PropertyType);
 		}
 	}
@@ -56,6 +58,6 @@
 
 	protected string GetStyle()
 	{
-		return !string.IsNullOrWhiteSpace(Margin) ? $"margin:{Margin};" : "";
+		return $"Margin: {Margin}";
 	}
 }

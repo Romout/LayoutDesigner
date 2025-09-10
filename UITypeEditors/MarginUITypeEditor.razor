@@ -1,0 +1,34 @@
+﻿<!-- Components/MarginEditor.razor -->
+@using LayoutDesigner.Models
+@inherits LayoutDesigner.Components.PropertyGridEditorBase<Models.Margin>
+
+<div class="margin-editor">
+    @if (Value != null)
+    {
+        <label for="Left">Left:</label>
+        <input type="number" value="@Value.Left" @onchange="e => Update(nameof(Value.Left), e.Value)" placeholder="Left" id="Left" />
+        <label for="Top">Top:</label>
+        <input type="number" value="@Value.Top" @onchange="e => Update(nameof(Value.Top), e.Value)" placeholder="Top" id="Top" />
+        <label for="Right">Right:</label>
+        <input type="number" value="@Value.Right" @onchange="e => Update(nameof(Value.Right), e.Value)" placeholder="Right" id="Right" />
+        <label for="Bottom">Bottom:</label>
+        <input type="number" value="@Value.Bottom" @onchange="e => Update(nameof(Value.Bottom), e.Value)" placeholder="Bottom" id="Bottom" />
+    }
+</div>
+
+@code {
+    private void Update(string side, object? val)
+    {
+        if (val is string s && int.TryParse(s, out var v))
+        {
+            switch (side)
+            {
+                case nameof(Value.Left): Value.Left = v; break;
+                case nameof(Value.Top): Value.Top = v; break;
+                case nameof(Value.Right): Value.Right = v; break;
+                case nameof(Value.Bottom): Value.Bottom = v; break;
+            }
+            InvokeAsync(() => ValueChanged(Value));
+        }
+    }
+}

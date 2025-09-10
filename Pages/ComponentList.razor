@@ -41,11 +41,7 @@
 		Container.Payload = new LayoutControlData()
 			{
 				Type = componentType,
-				Parameters = new Dictionary<string, object>()
-				{
-					{ "Id", Guid.NewGuid() },
-					{ "DesignMode", true },
-				},
+				Parameters = new Dictionary<string, object>(),
 				Selectable = true,
 				IsContainer = isContainer
 			};
@@ -53,6 +49,9 @@
 		LayoutComponent component = (LayoutComponent)Activator.CreateInstance(componentType);
 		foreach (var property in component.GetProperties())
 			Container.Payload.Parameters.Add(property.Name, property.Value);
+
+		Container.Payload.Parameters["Id"] = Guid.NewGuid();
+		Container.Payload.Parameters["DesignMode"] = true;
 	}
 
 	private IEnumerable<(string Name, object Value, Type Type)> GetProperties()

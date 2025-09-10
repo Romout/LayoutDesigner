@@ -14,20 +14,31 @@
             </div>
             @foreach (var prop in group.OrderBy(p => p.GetCustomAttribute<SortOrderAttribute>()?.Order ?? int.MaxValue))
             {
-                <div class="property-row" style="display:flex; align-items:center; margin-bottom:0.5rem;">
-                    <label style="min-width:120px; margin-right:1rem;">@prop.Name</label>
-                    @if (prop.PropertyType == typeof(bool))
-                    {
-                        <input type="checkbox"
-                               checked="@(GetValue(prop))"
-                               @onchange="e => SetValue(prop, e.Value)" />
-                    }
-                    else
-                    {
-                        <input type="text"
-                               value="@(GetValue(prop))"
-                               @onchange="e => SetValue(prop, e.Value)" 
-                               style="flex:1 1 auto;"/>
+                <div class="property-row">
+                    <label>@prop.Name</label>
+                    @{
+                        var editorAttr = prop.GetCustomAttribute<PropertyGridUIEditorAttribute>();
+                        if (editorAttr != null)
+                        {
+                            <DynamicComponent Type="editorAttr.EditorComponentType"
+                                              Parameters="@(new Dictionary<string, object>
+                                              {
+                                                  ["Value"] = GetValue(prop),
+                                                  ["ValueChanged"] = (object? v) => SetValue(prop, v)
+                                              })" />                            
+                        }
+                        else if (prop.PropertyType == typeof(bool))
+                        {
+                            <input type="checkbox"
+                                   checked="@(GetValue(prop))"
+                                   @onchange="e => SetValue(prop, e.Value)" />
+                        }
+                        else
+                        {
+                            <input type="text"
+                                   value="@(GetValue(prop))"
+                                   @onchange="e => SetValue(prop, e.Value)" />
+                        }
                     }
                 </div>
             }
