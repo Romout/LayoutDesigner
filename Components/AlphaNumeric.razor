@@ -2,14 +2,14 @@
 @inherits LayoutComponent
 @implements ILayoutComponent
 
-<MudCard inert="@(PreviewMode)">
+<MudCard inert="@(PreviewMode || DesignMode)">
 	<MudCardHeader>
-		@(PreviewMode ? "Speed" : Label)
+		@(PreviewMode ? "Speed" : @Label)
 	</MudCardHeader>
 	<MudCardContent>
 		@if (!PreviewMode)
 		{
-			<MudTextField @bind-Value="Value" Required="true" />
+			<MudTextField Value="@Value" Required="true" />
 		}
 		else
 		{

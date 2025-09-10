@@ -35,6 +35,10 @@
 			SelectionChanged?.Invoke(selectedData);
 		}
 	}
+	public void ClearSelection()
+	{
+		Select(null);
+	}
 
 	public void DeleteSelectedComponent()
 	{

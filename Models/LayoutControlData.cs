@@ -45,5 +45,13 @@ namespace LayoutDesigner.Models
 			}
 			return found;
 		}
-	}
+
+        public event Action? ParametersChanged;
+
+        public void SetParameter(string key, object value)
+        {
+            Parameters[key] = value;
+            ParametersChanged?.Invoke();
+        }
+    }
 }

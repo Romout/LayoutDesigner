@@ -3,12 +3,15 @@
 @using LayoutDesigner.Pages
 @code {
 	[Parameter]
+	[System.ComponentModel.Browsable(false)]
 	public Guid Id { get; set; }
 
 	[Parameter]
+	[System.ComponentModel.Browsable(false)]
 	public bool PreviewMode { get; set; }
 
 	[Parameter]
+	[System.ComponentModel.Browsable(false)]
 	public bool DesignMode { get; set; }
 
 	[CascadingParameter]
@@ -37,7 +40,6 @@
 	{
 		if (_autoBindParameters && LayoutControlData?.Parameters != null)
 		{
-			var bla = view.ToDictionary();
 			var parameters = LayoutControlData.Parameters;
 			var properties = GetProperties();
 			foreach (var property in properties)

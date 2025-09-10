@@ -21,8 +21,10 @@
 	{
 		if (LayoutControlData != null && LayoutControlData.Selectable)
 			Container?.Select(LayoutControlData);
+		else
+			Container?.ClearSelection();
 	}
-	
+
 	protected override void OnParametersSet()
 	{
 		base.OnParametersSet();
@@ -42,6 +44,9 @@
 
 	private void OnSelectionChanged(LayoutControlData selectedData)
 	{
+		var oldClass = selectedClass;
 		selectedClass = (selectedData == LayoutControlData && !HideSelection) ? "selected" : "";
+		if (oldClass != selectedClass)
+			StateHasChanged();
 	}
 }

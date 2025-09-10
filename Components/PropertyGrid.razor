@@ -1,0 +1,107 @@
+@using System.Reflection
+@using LayoutDesigner.Models
+@using LayoutDesigner.Pages
+@using System.Diagnostics
+@implements IDisposable
+
+@if (LayoutData != null)
+{
+    <div class="property-grid" style="padding:1rem; border:1px solid #ccc; border-radius:8px;" @key="LayoutData?.ObjectID">
+        @foreach (var group in GroupedProperties)
+        {
+            <div class="property-category" style="margin-bottom:0.5rem;">
+                <strong>@group.Key</strong>
+            </div>
+            @foreach (var prop in group.OrderBy(p => p.GetCustomAttribute<SortOrderAttribute>()?.Order ?? int.MaxValue))
+            {
+                <div class="property-row" style="display:flex; align-items:center; margin-bottom:0.5rem;">
+                    <label style="min-width:120px; margin-right:1rem;">@prop.Name</label>
+                    @if (prop.PropertyType == typeof(bool))
+                    {
+                        <input type="checkbox"
+                               checked="@(GetValue(prop))"
+                               @onchange="e => SetValue(prop, e.Value)" />
+                    }
+                    else
+                    {
+                        <input type="text"
+                               value="@(GetValue(prop))"
+                               @onchange="e => SetValue(prop, e.Value)" 
+                               style="flex:1 1 auto;"/>
+                    }
+                </div>
+            }
+            <hr />
+        }
+    </div>
+}
+
+@code {
+    [CascadingParameter]
+    private Container? Container { get; set; }
+
+    public LayoutControlData? LayoutData { get; set; }
+
+    private Type? ComponentType => LayoutData?.Type;
+
+    private IEnumerable<PropertyInfo> EditableProperties =>
+        ComponentType?
+            .GetProperties(BindingFlags.Public | BindingFlags.Instance)
+            .Where(p => p.GetCustomAttribute<ParameterAttribute>() != null && p.CanWrite &&
+            p.GetCustomAttribute<System.ComponentModel.BrowsableAttribute>() == null)
+        ?? Enumerable.Empty<PropertyInfo>();
+
+    private ILookup<string, PropertyInfo> GroupedProperties =>
+        EditableProperties.ToLookup(
+            p => p.GetCustomAttribute<CategoryAttribute>()?.Name ?? "Misc"
+        );
+
+    private object? GetValue(PropertyInfo prop)
+    {
+        if (LayoutData?.Parameters != null && LayoutData.Parameters.TryGetValue(prop.Name, out var value))
+            return value;
+        MethodInfo? methodInfo = prop.GetGetMethod();
+        if (methodInfo != null && methodInfo.IsStatic)
+            return prop.GetValue(null);
+        return null;
+    }
+
+    private void SetValue(PropertyInfo prop, object? value)
+    {
+        if (LayoutData?.Parameters == null) return;
+        object? converted = value;
+        if (prop.PropertyType == typeof(bool) && value is string s)
+            converted = bool.TryParse(s, out var b) ? b : false;
+        else if (prop.PropertyType != typeof(string) && value is string str)
+            converted = Convert.ChangeType(str, prop.PropertyType);
+
+        LayoutData.SetParameter(prop.Name, converted);
+
+        Trace.WriteLine($"{nameof(SetValue)}: {(LayoutData?.Parameters != null ? string.Join(", ", LayoutData?.Parameters.Select(kv => $"{kv.Key}={kv.Value}")) : "null")}");
+
+        InvokeAsync(StateHasChanged);
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        base.OnAfterRender(firstRender);
+
+        if (firstRender && Container != null)
+            Container.SelectionChanged += OnSelectionChanged;
+    }
+
+    void IDisposable.Dispose()
+    {
+        if (Container != null)
+            Container.SelectionChanged -= OnSelectionChanged;
+    }
+
+    private void OnSelectionChanged(LayoutControlData? selectedData)
+    {
+        LayoutData = Container?.Selection;
+
+        Trace.WriteLine($"{nameof(OnSelectionChanged)}: {(LayoutData?.Parameters != null ? string.Join(", ", LayoutData?.Parameters.Select(kv => $"{kv.Key}={kv.Value}")) : "null")}");
+        
+        InvokeAsync(StateHasChanged);
+    }
+}

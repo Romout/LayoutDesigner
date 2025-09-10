@@ -1,15 +1,18 @@
 ﻿@using LayoutDesigner.Models
 @using LayoutDesigner.Pages
+@using System.Diagnostics
 @implements IDisposable
 
 	@if (LayoutControlData != null)
 	{
-		<CascadingValue Value="LayoutControlData">
-			<Selectable HideSelection="@(LayoutControlData != null ? !LayoutControlData.Selectable : true)">
-				<DynamicComponent Type="LayoutControlData.Type" Parameters="LayoutControlData.Parameters" @ref="_dynamicComponent" />
-			</Selectable>
-		</CascadingValue>
-}
+		<div @key="_parametersKey">
+			<CascadingValue Value="LayoutControlData">
+				<Selectable HideSelection="@(LayoutControlData != null ? !LayoutControlData.Selectable : true)">
+					<DynamicComponent Type="LayoutControlData.Type" Parameters="LayoutControlData.Parameters" @ref="_dynamicComponent" />
+				</Selectable>
+			</CascadingValue>
+		</div>
+	}
 
 @code {
 
@@ -18,6 +21,8 @@
 	[CascadingParameter]
 	public Container? Container { get; set; }
 
+	private int _parametersVersion = 0;
+	private string _parametersKey = string.Empty;
 	private DynamicComponent? _dynamicComponent;
 	private bool _containerEventsRegistered = false;
 
@@ -25,6 +30,7 @@
 	{
 		return (LayoutComponent?)_dynamicComponent?.Instance;
 	}
+	private string GetParametersKey() => $"{(LayoutControlData?.ObjectID ?? 0)}_{_parametersVersion}";
 
 	protected override void OnParametersSet()
 	{
@@ -33,17 +39,33 @@
 			Container.StateChanged += OnStateChanged;
 			_containerEventsRegistered = true;
 		}
+
+		if (LayoutControlData != null)
+		{
+			LayoutControlData.ParametersChanged -= OnParametersChanged;
+			LayoutControlData.ParametersChanged += OnParametersChanged;
+		}
 	}
 
 	void IDisposable.Dispose()
 	{
 		if (Container != null)
 			Container.StateChanged -= OnStateChanged;
+		if (LayoutControlData != null)
+			LayoutControlData.ParametersChanged -= OnParametersChanged;
 	}
 
 	private void OnStateChanged(LayoutControlData data)
 	{
 		if (data == LayoutControlData)
 			StateHasChanged();
+	}
+
+	private void OnParametersChanged()
+	{
+		//Trace.WriteLine($"{nameof(OnParametersChanged)}: {(_parameters != null ? string.Join(", ", _parameters.Select(kv => $"{kv.Key}={kv.Value}")) : "null")}"); 
+		_parametersVersion++;
+		_parametersKey = GetParametersKey();
+		StateHasChanged();
 	}
 }

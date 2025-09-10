@@ -17,28 +17,8 @@
 	<li class="component-label">@(component.Name)</li>
 }
 </ul>
-<ul class="properties-list">
-	@if (Container?.Selection != null)
-	{
-		@foreach (var kvp in GetProperties())
-		{
-			<li>
-				@if (kvp.Type == typeof(string))
-				{
-					<MudTextField T="string" Label="@kvp.Name" Value="(string)kvp.Value" ValueChanged="args => OnValueChanged(kvp.Item1, args)"></MudTextField>
-				}
-				else if (kvp.Type == typeof(double))
-				{
-					<MudTextField T="double" Label="@kvp.Name" Value="(double)kvp.Value"  @onchange="args => OnValueChanged(kvp.Item1, args)"></MudTextField>
-				}
-				else if (kvp.Type == typeof(bool))
-				{
-					<MudCheckBox Label="@kvp.Name" Value="(bool)kvp.Value" @onchange="args => OnValueChanged(kvp.Item1, args)"></MudCheckBox>
-				}
-			</li>
-		}
-	}
-</ul>
+<PropertyGrid />
+
 @code {
 
 	[CascadingParameter] Container? Container { get; set; }
@@ -88,14 +68,5 @@
 			}
 		}
 		return result;
-	}
-
-	private void OnValueChanged<T>(string key, T value)
-	{
-		if (Container?.Selection != null)
-		{
-			Container.Selection.Parameters[key] = value;
-			Container.NotifyStateChanged(Container.Selection);
-		}
 	}
 }
