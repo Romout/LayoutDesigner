@@ -2,25 +2,28 @@
 @inherits LayoutComponent
 @implements ILayoutComponent
 
-<MudCard inert="@(PreviewMode || DesignMode)">
-	<MudCardHeader>
-		@(PreviewMode ? "Speed" : @Label)
-	</MudCardHeader>
-	<MudCardContent>
-		@if (!PreviewMode)
-		{
-			<MudTextField Value="@Value" Required="true" />
-		}
-		else
-		{
-			<MudTextField Value="@("42.0")" Required="true" />
-		}
-	</MudCardContent>
-</MudCard>
+<!-- central basic positioning -->
+<div style="@GetStyle()">
+	<MudCard inert="@(PreviewMode || DesignMode)">
+		<MudCardHeader>
+			@(PreviewMode ? "Speed" : @Label)
+		</MudCardHeader>
+		<MudCardContent>
+			@if (!PreviewMode)
+			{
+				<MudTextField Value="@Value" Required="true" />
+			}
+			else
+			{
+				<MudTextField Value="@("42.0")" Required="true" />
+			}
+		</MudCardContent>
+	</MudCard>
+</div>
 
 @code {
 	[Parameter]
-	public string Label { get; set; }
+	public string Label { get; set; } = "";
 
 	[Parameter]
 	public double Value { get; set; }

@@ -14,6 +14,9 @@
 	[System.ComponentModel.Browsable(false)]
 	public bool DesignMode { get; set; }
 
+	[Parameter]
+	public string? Margin { get; set; }
+
 	[CascadingParameter]
 	public Container? Container { get; set; }
 
@@ -49,5 +52,10 @@
 			}
 		}
 		return base.SetParametersAsync(view);
+	}
+
+	protected string GetStyle()
+	{
+		return !string.IsNullOrWhiteSpace(Margin) ? $"margin:{Margin};" : "";
 	}
 }

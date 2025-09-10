@@ -1,0 +1,64 @@
+﻿.property-grid {
+    background: #f9f9fb;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 1.5rem;
+    max-width: 420px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    margin-bottom: 2rem;
+}
+
+.property-category {
+    margin: 1.2rem 0 0.5rem 0;
+    font-size: 1.05rem;
+    color: #4a4a4a;
+    letter-spacing: 0.02em;
+}
+
+.property-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.7rem;
+    padding: 0.3rem 0.2rem;
+    border-radius: 5px;
+    transition: background 0.2s;
+}
+.property-row:hover {
+    background: #f0f4fa;
+}
+
+.property-row label {
+    min-width: 120px;
+    margin-right: 1.2rem;
+    color: #333;
+    font-weight: 500;
+    font-size: 0.98rem;
+}
+
+.property-row input[type="text"] {
+    flex: 1 1 auto;
+    padding: 0.35rem 0.7rem;
+    border: 1px solid #cfd8dc;
+    border-radius: 4px;
+    font-size: 0.97rem;
+    background: #fff;
+    transition: border 0.2s;
+}
+.property-row input[type="text"]:focus {
+    border: 1.5px solid #1976d2;
+    outline: none;
+    background: #f5faff;
+}
+
+.property-row input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: #1976d2;
+    margin-right: 0.5rem;
+}
+
+.property-grid hr {
+    border: none;
+    border-top: 1px solid #e0e0e0;
+    margin: 1rem 0;
+}

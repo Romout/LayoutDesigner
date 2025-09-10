@@ -1,7 +1,7 @@
 @using System.Reflection
 @using LayoutDesigner.Models
 @using LayoutDesigner.Pages
-@using System.Diagnostics
+
 @implements IDisposable
 
 @if (LayoutData != null)
@@ -77,8 +77,6 @@
 
         LayoutData.SetParameter(prop.Name, converted);
 
-        Trace.WriteLine($"{nameof(SetValue)}: {(LayoutData?.Parameters != null ? string.Join(", ", LayoutData?.Parameters.Select(kv => $"{kv.Key}={kv.Value}")) : "null")}");
-
         InvokeAsync(StateHasChanged);
     }
 
@@ -100,8 +98,6 @@
     {
         LayoutData = Container?.Selection;
 
-        Trace.WriteLine($"{nameof(OnSelectionChanged)}: {(LayoutData?.Parameters != null ? string.Join(", ", LayoutData?.Parameters.Select(kv => $"{kv.Key}={kv.Value}")) : "null")}");
-        
         InvokeAsync(StateHasChanged);
     }
 }

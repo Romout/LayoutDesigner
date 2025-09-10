@@ -1,6 +1,6 @@
 ﻿@using LayoutDesigner.Models
 @using LayoutDesigner.Pages
-@using System.Diagnostics
+
 @implements IDisposable
 
 	@if (LayoutControlData != null)
@@ -63,7 +63,6 @@
 
 	private void OnParametersChanged()
 	{
-		//Trace.WriteLine($"{nameof(OnParametersChanged)}: {(_parameters != null ? string.Join(", ", _parameters.Select(kv => $"{kv.Key}={kv.Value}")) : "null")}"); 
 		_parametersVersion++;
 		_parametersKey = GetParametersKey();
 		StateHasChanged();
