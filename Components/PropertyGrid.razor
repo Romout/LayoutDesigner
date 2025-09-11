@@ -15,29 +15,35 @@
             @foreach (var prop in group.OrderBy(p => p.GetCustomAttribute<SortOrderAttribute>()?.Order ?? int.MaxValue))
             {
                 <div class="property-row">
-                    <label>@prop.Name</label>
                     @{
                         var editorAttr = prop.GetCustomAttribute<PropertyGridUIEditorAttribute>();
                         if (editorAttr != null)
                         {
-                            <DynamicComponent Type="editorAttr.EditorComponentType"
-                                              Parameters="@(new Dictionary<string, object>
-                                              {
-                                                  ["Value"] = GetValue(prop),
-                                                  ["ValueChanged"] = (object? v) => SetValue(prop, v)
-                                              })" />                            
-                        }
-                        else if (prop.PropertyType == typeof(bool))
-                        {
-                            <input type="checkbox"
-                                   checked="@(GetValue(prop))"
-                                   @onchange="e => SetValue(prop, e.Value)" />
+                            <details>
+                                <summary>@prop.Name</summary>
+                                <DynamicComponent Type="editorAttr.EditorComponentType"
+                                    Parameters="@(new Dictionary<string, object>
+                                    {
+                                        ["Value"] = GetValue(prop),
+                                        ["ValueChanged"] = (object? v) => SetValue(prop, v)
+                                    })" />
+                            </details>
                         }
                         else
                         {
-                            <input type="text"
-                                   value="@(GetValue(prop))"
-                                   @onchange="e => SetValue(prop, e.Value)" />
+                            <label>@prop.Name</label>
+                            if (prop.PropertyType == typeof(bool))
+                            {
+                                <input type="checkbox"
+                                       checked="@(GetValue(prop))"
+                                       @onchange="e => SetValue(prop, e.Value)" />
+                            }
+                            else
+                            {
+                                <input type="text"
+                                       value="@(GetValue(prop))"
+                                       @onchange="e => SetValue(prop, e.Value)" />
+                            }
                         }
                     }
                 </div>
