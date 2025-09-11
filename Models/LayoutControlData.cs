@@ -1,4 +1,5 @@
-﻿using LayoutDesigner.Pages;
+﻿using LayoutDesigner.Components;
+using LayoutDesigner.Pages;
 
 namespace LayoutDesigner.Models
 {
@@ -19,7 +20,25 @@ namespace LayoutDesigner.Models
 		public List<LayoutControlData> Children { get; set; } = new List<LayoutControlData>();
 		public DropArea? DragSource { get; set; }
 
+		public int Width
+		{
+			get
+			{
+				if (Parameters != null && Parameters.TryGetValue(nameof(LayoutComponent.Width), out object width))
+					return (int)width;
+				return 120;
+			}
+		}
 
+		public int Height
+		{
+			get
+			{
+				if (Parameters != null && Parameters.TryGetValue(nameof(LayoutComponent.Height), out object height))
+					return (int)height;
+				return 40;
+			}
+		}
 		public bool Remove(LayoutControlData item)
 		{
 			int i;

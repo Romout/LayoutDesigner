@@ -13,6 +13,9 @@
 	[Parameter] public RenderFragment? ChildContent { get; set; }
 	[Parameter] public bool HideSelection { get; set; }
 
+	private string WidthPx => $"{LayoutControlData?.Width ?? 120}px";
+	private string HeightPx => $"{LayoutControlData?.Height ?? 40}px";
+
 	private bool _containerEventsRegistered = false;
 	private Guid _id;
 	private string selectedClass = "";
@@ -42,6 +45,8 @@
 			Container.SelectionChanged -= OnSelectionChanged;
 	}
 
+	private bool IsSelected => Container?.Selection == LayoutControlData && !HideSelection;
+
 	private void OnSelectionChanged(LayoutControlData selectedData)
 	{
 		var oldClass = selectedClass;
@@ -49,4 +54,20 @@
 		if (oldClass != selectedClass)
 			StateHasChanged();
 	}
+
+	private bool _resizing;
+	private double _startX, _startY;
+	private int _startWidth, _startHeight;
+
+	private void StartResize(MouseEventArgs e, string handle)
+	{
+		_resizing = true;
+		_startX = e.ClientX;
+		_startY = e.ClientY;
+		_startWidth = LayoutControlData?.Width ?? 120;
+		_startHeight = LayoutControlData?.Height ?? 40;
+		// Attach mousemove/mouseup handlers (see below)
+	}
+
+	// Handle mousemove/mouseup to update size and clear _resizing
 }

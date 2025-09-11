@@ -18,11 +18,19 @@
 	[PropertyGridUIEditor(typeof(UITypeEditors.MarginUITypeEditor))]
 	public Models.Margin Margin { get; set; } = new Models.Margin();
 
+	[Parameter]
+	public int Width { get; set; } = 120;
+
+	[Parameter]
+	public int Height { get; set; } = 80;
+
 	[CascadingParameter]
 	public Container? Container { get; set; }
 
 	[CascadingParameter]
 	public LayoutControlData? LayoutControlData { get; set; }
+
+	protected virtual bool CanResize => false;
 
 	protected bool _autoBindParameters = true;
 
@@ -58,6 +66,9 @@
 
 	protected string GetStyle()
 	{
-		return $"Margin: {Margin}";
+		var style = $"Margin: {Margin}";
+		if (CanResize)
+			style += $"; Width: {Width}px; Height: {Height}px;";
+		return style;
 	}
 }
