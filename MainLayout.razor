@@ -11,8 +11,9 @@
 		<MudAppBar>
 			<MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
 			Layout Designer
-			<MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Inherit" Edge="Edge.End" @onclick="Container.DeleteSelectedComponent" Disabled="DeleteDisabled" />
-			<button @onclick="toggle">toggle</button>
+			<MudIconButton Icon="@Icons.Material.Filled.FileOpen" Color="Color.Inherit" Edge="Edge.End" @onclick="Container.Load" id="load"/><label for="load">Load</label>
+			<MudIconButton Icon="@Icons.Material.Filled.Save" Color="Color.Inherit" Edge="Edge.End" @onclick="Container.Save" id="save"/><label for="save">Save</label>
+			<MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Inherit" Edge="Edge.End" @onclick="Container.DeleteSelectedComponent" Disabled="Container?.Selection == null" id="delete"/><label for="delete">Delete</label>
 		</MudAppBar>
 		<MudDrawer @bind-Open="@_drawerOpen">
 			<ComponentList/>
@@ -28,16 +29,9 @@
 
 	bool _drawerOpen = true;
 
-	bool DeleteDisabled { get; set; } = true;
-
 	void DrawerToggle()
 	{
 		_drawerOpen = !_drawerOpen;
-	}
-
-	void toggle()
-	{
-		DeleteDisabled = !DeleteDisabled;
 	}
 
 	protected override void OnAfterRender(bool firstRender)
@@ -56,6 +50,6 @@
 
 	private void OnSelectionChanged(LayoutControlData? selectedData)
 	{
-		DeleteDisabled = selectedData == null;
+		StateHasChanged();
 	}
 }

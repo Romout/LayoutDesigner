@@ -6,40 +6,42 @@
 @implements IDropAreaContainer
 
 <table>
-@for (int r = 0; r < Rows; ++r)
-{
-	<tr>
-	@for (int c = 0; c < Columns; ++c)
-	{
-		<CascadingValue Value="ChildData[r, c]">
-			<td><VerticalPanel></VerticalPanel></td>
-		</CascadingValue>
+	@{
+		for (int r = 0; r < Rows; ++r)
+		{
+			<tr>
+				@for (int c = 0; c < Columns; ++c)
+				{
+					<CascadingValue Value="LayoutControlData?.Children[r * Columns + c]">
+						<td><VerticalPanel></VerticalPanel></td>
+					</CascadingValue>
+				}
+			</tr>
+		}
 	}
-	</tr>
-}
 </table>
 
 @code {
 	[Parameter] public int Rows { get; set; } = 4;
 	[Parameter] public int Columns { get; set; } = 4;
-	[Parameter] public LayoutControlData[,]? ChildData { get; set; }
+
 
 	protected override void OnParametersSet()
 	{
-		if (ChildData == null || ChildData.GetLength(0) != Rows || ChildData.GetLength(1) != Columns)
+		if (LayoutControlData != null)
 		{
-			ChildData = new LayoutControlData[Rows, Columns];
-			for (int r = 0; r < Rows; ++r)
+			if (LayoutControlData.Children == null || 
+				LayoutControlData.Children.Count != Rows * Columns)
 			{
-				for (int c= 0; c < Columns; ++c)
-				{
-					ChildData[r, c] = new LayoutControlData()
-						{
-							Type = typeof(VerticalPanel),
-							IsContainer = true,
-							Selectable = false,
-						};
-				}
+				if (LayoutControlData.Children == null)
+					LayoutControlData.Children = new List<LayoutControlData>();
+				while (LayoutControlData.Children.Count < Rows * Columns)
+					LayoutControlData.Children.Add(new LayoutControlData()
+					{
+						Type = typeof(VerticalPanel),
+						IsContainer = true,
+						Selectable = false,
+					});
 			}
 		}
 		base.OnParametersSet();

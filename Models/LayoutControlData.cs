@@ -1,4 +1,5 @@
-﻿using LayoutDesigner.Components;
+﻿using System.Text.Json.Serialization;
+using LayoutDesigner.Components;
 using LayoutDesigner.Pages;
 
 namespace LayoutDesigner.Models
@@ -13,11 +14,26 @@ namespace LayoutDesigner.Models
 		}
 
 		public int ObjectID { get; }
+		[JsonIgnore]
 		public Type? Type { get; set; }
+
+		public string TypeName
+		{
+			get => Type?.FullName ?? "";
+			set
+			{
+				Type = Type.GetType(value);
+				if (Type == null)
+					throw new Exception($"Type '{value}' not found");
+			}
+		}
+
 		public Dictionary<string, object> Parameters { get; set; } = new Dictionary<string, object>();
 		public bool Selectable { get; set; } = true;
 		public bool IsContainer { get; set; } = false;
 		public List<LayoutControlData> Children { get; set; } = new List<LayoutControlData>();
+
+		[JsonIgnore]
 		public DropArea? DragSource { get; set; }
 
 		public int Width
@@ -65,7 +81,8 @@ namespace LayoutDesigner.Models
 			return found;
 		}
 
-        public event Action? ParametersChanged;
+		[field:JsonIgnore]
+		public event Action? ParametersChanged;
 
         public void SetParameter(string key, object value)
         {

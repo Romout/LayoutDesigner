@@ -13,6 +13,38 @@
     <link href="_content/MudBlazor/MudBlazor.min.css" rel="stylesheet" />
     <component type="typeof(HeadOutlet)" render-mode="ServerPrerendered" />
 </head>
+
+<script>
+    window.downloadFileFromStream = async (fileName, contentStreamReference) => {
+      const arrayBuffer = await contentStreamReference.arrayBuffer();
+      const blob = new Blob([arrayBuffer]);
+      const url = URL.createObjectURL(blob);
+      const anchorElement = document.createElement('a');
+      anchorElement.href = url;
+      anchorElement.download = fileName ?? '';
+      anchorElement.click();
+      anchorElement.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    window.readFileAsText = (input, dotNetRef) => {
+        if (input.files.length === 0) return;
+        const file = input.files[0];
+        const reader = new FileReader();
+        reader.onload = () => {
+            dotNetRef.invokeMethodAsync('OnFileLoaded', reader.result);
+        };
+        reader.readAsText(file);
+    };
+
+    window.triggerElementClick = (element) => {
+        element.click();
+    };
+    window.clearFileInput = function(element) {
+        if (element) element.value = "";
+    };
+</script>
+
 <body>
     <component type="typeof(App)" render-mode="ServerPrerendered" />
 
