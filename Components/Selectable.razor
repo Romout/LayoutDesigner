@@ -1,9 +1,13 @@
 ﻿@using LayoutDesigner.Models
 @using LayoutDesigner.Pages
 @implements IDisposable
+@inject IJSRuntime JS
 
-<div class="@selectedClass" @onclick="Select" @onclick:stopPropagation="true">
-	@ChildContent
+<div id="container" style="width:@WidthPx;height:@HeightPx;">
+	<div class="@selectedClass" id="navi" @onclick="Select" @onclick:stopPropagation="true" />
+	<div @onclick="Select" @onclick:stopPropagation="true" @ref="contentContainer">
+		@ChildContent
+	</div>
 </div>
 
 @code {
@@ -13,12 +17,28 @@
 	[Parameter] public RenderFragment? ChildContent { get; set; }
 	[Parameter] public bool HideSelection { get; set; }
 
-	private string WidthPx => $"{LayoutControlData?.Width ?? 120}px";
-	private string HeightPx => $"{LayoutControlData?.Height ?? 40}px";
+	private Size _size = new ();
+
+	private class Size
+	{
+		public double width { get; set; }
+		public double height { get; set; }
+	}
+
+	private async Task UpdateElementSize()
+	{
+		_size = await JS.InvokeAsync<Size>("getElementSize", contentContainer, 2);
+	}
+
+	//private string WidthPx => $"{LayoutControlData?.Width ?? 120}px";
+	private string HeightPx => $"{_size.height}px";
+	private string WidthPx => $"{_size.width}px";
 
 	private bool _containerEventsRegistered = false;
 	private Guid _id;
 	private string selectedClass = "";
+
+	private ElementReference contentContainer;
 
 	private void Select()
 	{
@@ -53,6 +73,12 @@
 		selectedClass = (selectedData == LayoutControlData && !HideSelection) ? "selected" : "";
 		if (oldClass != selectedClass)
 			StateHasChanged();
+	}
+
+	protected override async void OnAfterRender(bool firstRender)
+	{
+		base.OnAfterRender(firstRender);
+		await UpdateElementSize();
 	}
 
 	private bool _resizing;

@@ -11,3 +11,19 @@
     bottom: -6px;
     cursor: se-resize;
 }
+#container {
+    position: relative;
+}
+
+#navi,
+#infoi {
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	top: 0;
+	left: 0;
+}
+
+#infoi {
+    z-index: 10;
+}
