@@ -7,6 +7,9 @@
 @if (LayoutData != null)
 {
     <div class="property-grid" style="padding:1rem; border:1px solid #ccc; border-radius:8px;" @key="LayoutData?.ObjectID">
+        <div class="selected-object">
+            <strong>@LayoutData.Name</strong>
+        </div>
         @foreach (var group in GroupedProperties)
         {
             <div class="property-category" style="margin-bottom:0.5rem;">

@@ -3,42 +3,48 @@
 @implements IDisposable
 @inject IJSRuntime JS
 
-<div id="container" style="width:@WidthPx;height:@HeightPx;">
-	<div class="@selectedClass" id="navi" @onclick="Select" @onclick:stopPropagation="true" />
-	<div @onclick="Select" @onclick:stopPropagation="true" @ref="contentContainer">
-		@ChildContent
-	</div>
+<div class="@selectedClass" id="navi" style="left:@LeftPx;top:@TopPx;width:@WidthPx;height:@HeightPx;" 
+	@onclick="Select" @onclick:stopPropagation="true"></div>
+<div @onclick="Select" @onclick:stopPropagation="true" @ref="contentContainer">
+	@ChildContent
 </div>
 
 @code {
+
+	private class PositionAndSize
+	{
+		public double left { get; set; }
+		public double top { get; set; }
+		public double width { get; set; }
+		public double height { get; set; }
+	}
+
+
 	[CascadingParameter] Container? Container { get; set; }
 	[CascadingParameter] public LayoutControlData? LayoutControlData { get; set; }
 
 	[Parameter] public RenderFragment? ChildContent { get; set; }
 	[Parameter] public bool HideSelection { get; set; }
 
-	private Size _size = new ();
+	private ElementReference contentContainer;
+	private ElementReference selectionBox;
 
-	private class Size
-	{
-		public double width { get; set; }
-		public double height { get; set; }
-	}
+	private PositionAndSize _pos = new ();
 
-	private async Task UpdateElementSize()
-	{
-		_size = await JS.InvokeAsync<Size>("getElementSize", contentContainer, 2);
-	}
-
-	//private string WidthPx => $"{LayoutControlData?.Width ?? 120}px";
-	private string HeightPx => $"{_size.height}px";
-	private string WidthPx => $"{_size.width}px";
+	private string LeftPx => $"{_pos.left}px";
+	private string TopPx => $"{_pos.top}px";
+	private string HeightPx => $"{_pos.height}px";
+	private string WidthPx => $"{_pos.width}px";
 
 	private bool _containerEventsRegistered = false;
 	private Guid _id;
 	private string selectedClass = "";
 
-	private ElementReference contentContainer;
+	public async Task UpdateElementSize()
+	{
+		if (!string.IsNullOrEmpty(contentContainer.Id))
+			_pos = await JS.InvokeAsync<PositionAndSize>("getElementSize", contentContainer, LayoutControlData?.IsContainer ?? false ? 0 : 2);	}
+
 
 	private void Select()
 	{
@@ -56,6 +62,8 @@
 		{
 			Container.SelectionChanged += OnSelectionChanged;
 			_containerEventsRegistered = true;
+
+			OnSelectionChanged(Container.Selection);
 		}
 	}
 

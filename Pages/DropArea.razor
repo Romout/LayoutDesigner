@@ -55,6 +55,7 @@
 			if (Container.Payload.DragSource != null)
 				Container.Payload.DragSource.RemoveChild(Container.Payload);
 
+			Container.Select(LayoutControlData.Children.Last());
 			Container.Payload = null;
 			StateHasChanged();
 		}

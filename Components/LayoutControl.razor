@@ -7,7 +7,7 @@
 	{
 		<div @key="_parametersKey">
 			<CascadingValue Value="LayoutControlData">
-				<Selectable HideSelection="@(LayoutControlData != null ? !LayoutControlData.Selectable : true)">
+				<Selectable HideSelection="@(LayoutControlData != null ? !LayoutControlData.Selectable : true)" @ref="_selectable">
 					<DynamicComponent Type="LayoutControlData.Type" Parameters="LayoutControlData.Parameters" @ref="_dynamicComponent" />
 				</Selectable>
 			</CascadingValue>
@@ -24,6 +24,7 @@
 	private int _parametersVersion = 0;
 	private string _parametersKey = string.Empty;
 	private DynamicComponent? _dynamicComponent;
+	private Selectable? _selectable;
 	private bool _containerEventsRegistered = false;
 
 	public LayoutComponent? GetLayoutComponent()

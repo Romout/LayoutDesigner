@@ -13,6 +13,7 @@ namespace LayoutDesigner.Models
 			ObjectID = counter++;
 		}
 
+		public string Name { get; set; }
 		public int ObjectID { get; }
 		[JsonIgnore]
 		public Type? Type { get; set; }
@@ -86,6 +87,8 @@ namespace LayoutDesigner.Models
 
         public void SetParameter(string key, object value)
         {
+			if (key == nameof(Name))
+				Name = value?.ToString() ?? "";
             Parameters[key] = value;
             ParametersChanged?.Invoke();
         }

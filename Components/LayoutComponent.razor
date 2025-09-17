@@ -6,6 +6,9 @@
 @code {
 
 	[Parameter]
+	public string Name { get; set; } = "";
+
+	[Parameter]
 	[System.ComponentModel.Browsable(false)]
 	public Guid Id { get; set; }
 

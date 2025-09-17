@@ -52,6 +52,7 @@
 
 		Container.Payload.Parameters["Id"] = Guid.NewGuid();
 		Container.Payload.Parameters["DesignMode"] = true;
+		Container.Payload.Parameters["Name"] = componentType.Name;
 	}
 
 	private IEnumerable<(string Name, object Value, Type Type)> GetProperties()
