@@ -47,6 +47,9 @@
 			};
 
 		LayoutComponent component = (LayoutComponent)Activator.CreateInstance(componentType);
+		Container.Payload.CanResizeHorizontally = component.CanResizeHorizontally;
+		Container.Payload.CanResizeVertically = component.CanResizeVertically;
+
 		foreach (var property in component.GetProperties())
 			Container.Payload.Parameters.Add(property.Name, property.Value);
 

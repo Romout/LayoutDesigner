@@ -12,8 +12,27 @@
     cursor: se-resize;
 }
 
-#navi {
+#selectionBox {
     position: absolute;
     z-index: 10;
     pointer-events: none;
+}
+
+.corner {
+	position: absolute;
+	z-index: 11;
+	background-color: white;
+	border: 1px black solid;
+}
+
+.corner-se {
+    cursor: se-resize
+}
+
+.corner-s {
+	cursor: s-resize
+}
+
+.corner-e {
+    cursor: e-resize
 }

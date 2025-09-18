@@ -3,14 +3,19 @@
 @implements IDisposable
 @inject IJSRuntime JS
 
-<div class="@selectedClass" id="navi" style="left:@LeftPx;top:@TopPx;width:@WidthPx;height:@HeightPx;" 
+<div class="@selectedClass" id="selectionBox" style="left:@LeftPx;top:@TopPx;width:@WidthPx;height:@HeightPx;" 
 	@onclick="Select" @onclick:stopPropagation="true"></div>
+@if (IsSelected && (LayoutControlData?.CanResize ?? false))
+{
+	<div class="corner @cornerCursorStyle" style="@bottomRightCornerDef" @onmousedown="StartResize" @onclick:stopPropagation="true" @onmousedown:stopPropagation="true" />
+}
 <div @onclick="Select" @onclick:stopPropagation="true" @ref="contentContainer">
 	@ChildContent
 </div>
 
 @code {
 
+	private const int CORNER_SIZE = 10;
 	private class PositionAndSize
 	{
 		public double left { get; set; }
@@ -18,7 +23,6 @@
 		public double width { get; set; }
 		public double height { get; set; }
 	}
-
 
 	[CascadingParameter] Container? Container { get; set; }
 	[CascadingParameter] public LayoutControlData? LayoutControlData { get; set; }
@@ -35,6 +39,18 @@
 	private string TopPx => $"{_pos.top}px";
 	private string HeightPx => $"{_pos.height}px";
 	private string WidthPx => $"{_pos.width}px";
+
+	private string cornerCursorStyle => (LayoutControlData?.CanResizeHorizontally ?? false, LayoutControlData?.CanResizeVertically ?? false) switch
+	{
+		(true, true) => "corner-se",
+		(true, false) => "corner-e",
+		(false, true) => "corner-s",
+		_ => ""
+	};
+
+	// Single drag corner for now
+	//private string topLeftCornerDef => $"left:{_pos.left}px;top:{_pos.top}px;width:{CORNER_SIZE}px;height:{CORNER_SIZE}px;";
+	private string bottomRightCornerDef => $"left:{_pos.left + _pos.width - CORNER_SIZE}px;top:{_pos.top + _pos.height - CORNER_SIZE}px;width:{CORNER_SIZE}px;height:{CORNER_SIZE}px;";
 
 	private bool _containerEventsRegistered = false;
 	private Guid _id;
@@ -89,19 +105,54 @@
 		await UpdateElementSize();
 	}
 
-	private bool _resizing;
 	private double _startX, _startY;
 	private int _startWidth, _startHeight;
 
-	private void StartResize(MouseEventArgs e, string handle)
+	private void StartResize(MouseEventArgs e)
 	{
-		_resizing = true;
+		if (LayoutControlData == null || !LayoutControlData.CanResize)
+			return;
+
 		_startX = e.ClientX;
 		_startY = e.ClientY;
 		_startWidth = LayoutControlData?.Width ?? 120;
 		_startHeight = LayoutControlData?.Height ?? 40;
-		// Attach mousemove/mouseup handlers (see below)
+
+		JS.InvokeVoidAsync("enableDisableDragging", false);
+
+		LayoutControlData.IsResizing = true;
+		// Attach mousemove/mouseup handlers (ensure no old registration)
+		Container!.MouseMove -= OnMouseMove;
+		Container!.MouseUp -= OnMouseUp;
+		Container!.MouseMove += OnMouseMove;
+		Container!.MouseUp += OnMouseUp;
 	}
 
-	// Handle mousemove/mouseup to update size and clear _resizing
+	private void OnMouseMove(MouseEventArgs e)
+	{
+		if (LayoutControlData != null && LayoutControlData.CanResize && LayoutControlData.IsResizing)
+		{
+			var dx = e.ClientX - _startX;
+			var dy = e.ClientY - _startY;
+			if (LayoutControlData.CanResizeHorizontally)
+				LayoutControlData.SetParameter(nameof(LayoutControlData.Width), Math.Max(40, _startWidth + (int)dx));
+			if (LayoutControlData.CanResizeVertically)
+				LayoutControlData.SetParameter(nameof(LayoutControlData.Height), Math.Max(20, _startHeight + (int)dy));
+			StateHasChanged();
+		}
+	}
+
+	private void OnMouseUp(MouseEventArgs e)
+	{
+		if (LayoutControlData == null || !LayoutControlData.CanResize)
+			return;
+
+		if (LayoutControlData.IsResizing)
+			LayoutControlData.IsResizing = false;
+	
+		JS.InvokeVoidAsync("enableDisableDragging", true);
+
+		Container!.MouseMove -= OnMouseMove;
+		Container!.MouseUp -= OnMouseUp;
+	}
 }

@@ -11,17 +11,18 @@
 	@ondragenter="HandleDragEnter"
 	@ondragleave="HandleDragLeave">
 
-	@if (LayoutControlData?.Children != null)
-	{
-		for (int i = 0; i < LayoutControlData.Children.Count; ++i)
+		@if (LayoutControlData?.Children != null)
 		{
-			int _i = i;
-			<div class="component draggable" draggable="true" @ondragstart="@(() => HandleDragStart(_i))" @ondrop:stopPropagation="LayoutControlData.Children[_i].IsContainer">
-				<LayoutControl LayoutControlData="LayoutControlData.Children[_i]" />
-			</div>
+			for (int i = 0; i < LayoutControlData.Children.Count; ++i)
+			{
+				int _i = i;
+				<div class="component draggable" draggable="true" @ondragstart="@(() => HandleDragStart(_i))" @ondrop:stopPropagation="LayoutControlData.Children[_i].IsContainer">
+					<LayoutControl LayoutControlData="LayoutControlData.Children[_i]" />
+				</div>
+			}
 		}
-	}
 </div>
+
 
 @code {
 	[Parameter] public string StyleClass { get; set; } = "drop-area-vertical";
@@ -64,7 +65,7 @@
 
 	private void HandleDragStart(int index)
 	{
-		if (Container != null && Container.Payload == null && LayoutControlData?.Children != null)
+		if (Container != null && Container.Payload == null && LayoutControlData?.Children != null && !LayoutControlData.IsResizing)
 		{
 			Container.Payload = LayoutControlData.Children[index];
 			Container.Payload.DragSource = this;

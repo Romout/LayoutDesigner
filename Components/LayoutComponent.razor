@@ -36,7 +36,9 @@
 	[CascadingParameter]
 	public LayoutControlData? LayoutControlData { get; set; }
 
-	protected virtual bool CanResize => false;
+	public bool CanResize => CanResizeHorizontally || CanResizeVertically;
+	public virtual bool CanResizeHorizontally => false;
+	public virtual bool CanResizeVertically => false;
 
 	protected bool _autoBindParameters = true;
 

@@ -6,7 +6,9 @@
 @using System.Reflection
 @inject IJSRuntime JS
 
-<div class="container">
+<div class="container" 
+	@onmousemove="@OnMouseMove"
+	@onmouseup="@OnMouseUp">
 	<CascadingValue Value="this">
 		@ChildContent
 	</CascadingValue>
@@ -25,6 +27,8 @@
 	public LayoutControlData? Selection { get; private set; }
 	public event Action<LayoutControlData?>? SelectionChanged;
 	public event Action<LayoutControlData?>? StateChanged;
+	public event Action<MouseEventArgs>? MouseMove;
+	public event Action<MouseEventArgs>? MouseUp;
 
 	private ElementReference _fileInput;
 
@@ -130,5 +134,15 @@
 	public void NotifyStateChanged(LayoutControlData data)
 	{
 		StateChanged?.Invoke(data);
+	}
+
+	private void OnMouseMove(MouseEventArgs e)
+	{
+		MouseMove?.Invoke(e);
+	}
+
+	private void OnMouseUp(MouseEventArgs e)
+	{
+		MouseUp?.Invoke(e);
 	}
 }

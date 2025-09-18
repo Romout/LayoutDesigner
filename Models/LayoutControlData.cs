@@ -31,7 +31,11 @@ namespace LayoutDesigner.Models
 
 		public Dictionary<string, object> Parameters { get; set; } = new Dictionary<string, object>();
 		public bool Selectable { get; set; } = true;
+		public bool CanResize => CanResizeHorizontally || CanResizeVertically;
+		public bool CanResizeHorizontally { get; set; } = false;
+		public bool CanResizeVertically { get; set; } = false;
 		public bool IsContainer { get; set; } = false;
+		public bool IsResizing { get; set; } = false;
 		public List<LayoutControlData> Children { get; set; } = new List<LayoutControlData>();
 
 		[JsonIgnore]
