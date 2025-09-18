@@ -9,13 +9,13 @@
 <MudLayout>
 	<Container @ref="Container">
 		<MudAppBar>
-			<MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
+			<!--<MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />-->
 			Layout Designer
 			<MudIconButton Icon="@Icons.Material.Filled.FileOpen" Color="Color.Inherit" Edge="Edge.End" @onclick="Container.Load" id="load"/><label for="load">Load</label>
 			<MudIconButton Icon="@Icons.Material.Filled.Save" Color="Color.Inherit" Edge="Edge.End" @onclick="Container.Save" id="save"/><label for="save">Save</label>
 			<MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Inherit" Edge="Edge.End" @onclick="Container.DeleteSelectedComponent" Disabled="Container?.Selection == null" id="delete"/><label for="delete">Delete</label>
 		</MudAppBar>
-		<MudDrawer @bind-Open="@_drawerOpen">
+		<MudDrawer Open="@true">
 			<ComponentList/>
 		</MudDrawer>
 		<MudMainContent> 
@@ -26,13 +26,6 @@
 
 @code {
 	private Container? Container { get; set; }
-
-	bool _drawerOpen = true;
-
-	void DrawerToggle()
-	{
-		_drawerOpen = !_drawerOpen;
-	}
 
 	protected override void OnAfterRender(bool firstRender)
 	{

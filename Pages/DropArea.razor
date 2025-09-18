@@ -4,7 +4,7 @@
 @inherits LayoutComponent
 @implements ILayoutComponent
 
-<div class="dropzone @(dropClass != "" ? dropClass : "dropzone-border") @StyleClass"
+<div class="dropzone @(dropClass != "" ? dropClass : "dropzone-border") @StyleClass" style="@style"
 	ondragover="event.preventDefault();"
 	ondragstart="event.dataTransfer.setData('', event.target.id);"
 	@ondrop="HandleDrop"
@@ -26,6 +26,7 @@
 
 @code {
 	[Parameter] public string StyleClass { get; set; } = "drop-area-vertical";
+	[Parameter] public string style { get; set; } = "";
 
 	private string dropClass = "";
 	protected override void OnInitialized()

@@ -1,0 +1,14 @@
+﻿@using LayoutDesigner.Interfaces
+@inherits LayoutComponent
+@implements ILayoutComponent
+
+<div style="@GetStyle()">
+	<div style="border: solid 2px orange;background-color:darkorange;">
+		<span>@Text</span>
+	</div>
+</div>
+
+@code {
+	[Parameter]
+	public string Text { get; set; } = "Hello, World!";
+}

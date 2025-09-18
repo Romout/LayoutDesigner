@@ -1,0 +1,26 @@
+﻿<!-- Components/MarginEditor.razor -->
+@using LayoutDesigner.Models
+@inherits LayoutDesigner.Components.PropertyGridEditorBase<string[]>
+
+<div class="margin-editor">
+    @if (Value != null)
+    {
+        for (int i = 0; i < Value.Length; ++i)
+        {
+            int j = i;
+            <label for="@($"Index{j}")">Index @j:</label>
+            <input type="text" value="@($"Index{j}")" @onchange="e => Update(j, e.Value)" id="@($"Index{j}")" />
+        }
+    }
+</div>
+
+@code {
+    private void Update(int index, object? val)
+    {
+        if (val is string text && Value != null)
+        {
+			Value[index] = text;
+            InvokeAsync(() => ValueChanged(Value));
+        }
+    }
+}

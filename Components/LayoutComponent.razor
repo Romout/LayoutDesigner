@@ -72,6 +72,15 @@
 		return base.SetParametersAsync(view);
 	}
 
+	public bool HasParameterChanged<TParameterType>(ParameterView parameters, string parameterName, TParameterType value)
+	{
+		if (parameters.TryGetValue<TParameterType>(parameterName, out var result))
+		{
+			return !EqualityComparer<TParameterType>.Default.Equals(result, value);
+		}
+		return false;
+	}
+
 	protected string GetStyle()
 	{
 		var style = $"Margin: {Margin}";
