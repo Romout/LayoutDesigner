@@ -25,6 +25,10 @@
 	public Models.Margin Margin { get; set; } = new Models.Margin();
 
 	[Parameter]
+	[PropertyGridUIEditor(typeof(UITypeEditors.MarginUITypeEditor))]
+	public Models.Margin Padding { get; set; } = new Models.Margin();
+
+	[Parameter]
 	public int Width { get; set; } = 120;
 
 	[Parameter]
@@ -83,7 +87,7 @@
 
 	protected string GetStyle()
 	{
-		var style = $"Margin: {Margin}";
+		var style = $"Margin: {Margin};Padding: {Padding};";
 		if (CanResize)
 			style += $"; Width: {Width}px; Height: {Height}px;";
 		return style;

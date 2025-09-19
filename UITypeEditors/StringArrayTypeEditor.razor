@@ -9,7 +9,7 @@
         {
             int j = i;
             <label for="@($"Index{j}")">Index @j:</label>
-            <input type="text" value="@($"Index{j}")" @onchange="e => Update(j, e.Value)" id="@($"Index{j}")" />
+            <input type="text" value="@Value[j]" @onchange="e => Update(j, e.Value)" id="@($"Index{j}")" />
         }
     }
 </div>

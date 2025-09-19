@@ -1,51 +1,66 @@
 ﻿@using LayoutDesigner.Interfaces
 @using LayoutDesigner.Pages
-@using LayoutDesigner.Models
 @inherits LayoutComponent
 @implements ILayoutComponent
 @implements IDropAreaContainer
 
-<table>
-	@{
-		for (int r = 0; r < Rows; ++r)
-		{
-			<tr>
-				@for (int c = 0; c < Columns; ++c)
-				{
-					<CascadingValue Value="LayoutControlData?.Children[r * Columns + c]">
-						<td><VerticalPanel></VerticalPanel></td>
-					</CascadingValue>
-				}
-			</tr>
-		}
-	}
-</table>
+<div style="@GetStyle()">
+	<DropArea StyleClass="drop-area-panel" PreviewMode="PreviewMode" DesignMode="DesignMode" style="@_gridStyle"></DropArea>
+</div>
 
 @code {
-	[Parameter] public int Rows { get; set; } = 4;
-	[Parameter] public int Columns { get; set; } = 4;
+	public override bool CanResizeHorizontally => true;
+	public override bool CanResizeVertically => true;
 
-
-	protected override void OnParametersSet()
+	private string _gridStyle
 	{
-		if (LayoutControlData != null)
+		get
 		{
-			if (LayoutControlData.Children == null || 
-				LayoutControlData.Children.Count != Rows * Columns)
-			{
-				if (LayoutControlData.Children == null)
-					LayoutControlData.Children = new List<LayoutControlData>();
-				while (LayoutControlData.Children.Count < Rows * Columns)
-					LayoutControlData.Children.Add(new LayoutControlData()
-					{
-						Type = typeof(VerticalPanel),
-						IsContainer = true,
-						Selectable = false,
-						CanResizeHorizontally = false,
-						CanResizeVertically = false,
-					});
-			}
+			return $"display: grid; " +
+				$"grid-template-columns: {string.Join(" ", ColumnWidths)}; " +
+				$"grid-template-rows: {string.Join(" ", RowHeights)}; " +
+				$"gap: {Gap}px; ";
 		}
-		base.OnParametersSet();
+	}
+	[Parameter]
+	public int Columns { get; set; } = 1;
+
+	[Parameter]
+	public int Rows { get; set; } = 1;
+
+	[Parameter]
+	public int Gap { get; set; } = 5;
+
+	[Parameter]
+	[PropertyGridUIEditor(typeof(UITypeEditors.StringArrayTypeEditor))]
+	public string[] ColumnWidths { get; set; } = new string[] { "1fr" };
+
+	[Parameter]
+	[PropertyGridUIEditor(typeof(UITypeEditors.StringArrayTypeEditor))]
+	public string[] RowHeights { get; set; } = new string[] { "1fr" };
+
+	protected override Task OnParametersSetAsync()
+	{
+		if (Columns != ColumnWidths.Length)
+		{
+			var newWidths = new string[Columns];
+			int minLength = Math.Min(Columns, ColumnWidths.Length);
+			Array.Copy(ColumnWidths, newWidths, minLength);
+			for (int i = minLength; i < Columns; ++i)
+				newWidths[i] = "1fr";
+			ColumnWidths = newWidths;
+		}
+
+		if (Rows != RowHeights.Length)
+		{
+			var newHeights = new string[Rows];
+			int minLength = Math.Min(Rows, RowHeights.Length);
+			Array.Copy(RowHeights, newHeights, minLength);
+			for (int i = minLength; i < Rows; ++i)
+				newHeights[i] = "1fr";
+			RowHeights = newHeights;
+		}
+
+		return base.OnParametersSetAsync();
 	}
 }
