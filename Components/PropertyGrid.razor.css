@@ -9,6 +9,8 @@
 }
 
 .property-category {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     margin: 1.2rem 0 0.5rem 0;
     font-size: 1.05rem;
     color: #4a4a4a;
@@ -16,7 +18,8 @@
 }
 
 .property-row {
-    display: flex;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     align-items: center;
     margin-bottom: 0.7rem;
     padding: 0.3rem 0.2rem;
@@ -36,8 +39,6 @@
 }
 
 .property-row input[type="text"] {
-    flex: 1 1 auto;
-    padding: 0.35rem 0.7rem;
     border: 1px solid #cfd8dc;
     border-radius: 4px;
     font-size: 0.97rem;
@@ -77,4 +78,13 @@
     color: #1976d2;
     outline: none;
     margin-bottom: 0.5rem;
+}
+
+.property-grid > select {
+    width: 100%;
+    font-weight: 500;
+    margin: 1.2rem 0 0.5rem 0;
+    font-size: 1.05rem;
+    color: #4a4a4a;
+    letter-spacing: 0.02em;
 }

@@ -39,7 +39,7 @@
 				Type = typeof(VerticalPanel),
 				IsContainer = true,
 			};
-		Root.Parameters["Padding"] = new Models.Margin() { Top = 30, Bottom = 30, Left = 30, Right = 30 };
+		Root.Parameters[nameof(LayoutComponent.Padding)] = new Models.Margin() { Top = 30, Bottom = 30, Left = 30, Right = 30 };
 	}
 
 	public void Select(LayoutControlData? selectedData)

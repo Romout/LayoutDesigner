@@ -7,6 +7,19 @@
 @if (LayoutData != null)
 {
     <div class="property-grid" style="padding:1rem; border:1px solid #ccc; border-radius:8px;" @key="LayoutData?.ObjectID">
+        <select @onchange="SelectObject">
+            @foreach (var component in GetAllComponents())
+            {
+                if (component == LayoutData)
+                {
+                    <option value="@component.ObjectID" selected>@component.Parameters["Name"]</option>
+                }
+                else
+                {
+                    <option value="@component.ObjectID">@component.Parameters["Name"]</option>
+                }
+            }
+        </select>
         <div class="selected-object">
             <strong>@LayoutData.Name</strong>
         </div>
@@ -119,5 +132,29 @@
         LayoutData = Container?.Selection;
 
         InvokeAsync(StateHasChanged);
+    }
+
+    private void SelectObject(ChangeEventArgs change)
+    {
+        if (change?.Value != null && int.TryParse(change?.Value.ToString(), out int objectId))
+        {
+            var control = GetAllComponents().FirstOrDefault(c => c.ObjectID == objectId);
+            Container?.Select(control);
+        }
+    }
+
+    private IEnumerable<LayoutControlData> GetAllComponents()
+    {
+        Stack<LayoutControlData> controls = new Stack<LayoutControlData>();
+        controls.Push(Container.Root);
+        while (controls.Count > 0)
+        {
+            var control = controls.Pop();
+            foreach (var child in control.Children)
+            {
+                yield return child;
+                controls.Push(child);
+            }
+        }
     }
 }

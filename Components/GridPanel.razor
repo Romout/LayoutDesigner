@@ -4,24 +4,12 @@
 @implements ILayoutComponent
 @implements IDropAreaContainer
 
-<div style="@GetStyle()">
-	<DropArea StyleClass="drop-area-panel" PreviewMode="PreviewMode" DesignMode="DesignMode" style="@_gridStyle"></DropArea>
-</div>
+<DropArea StyleClass="drop-area-panel" PreviewMode="PreviewMode" DesignMode="DesignMode" style="@GetStyle()"></DropArea>
 
 @code {
 	public override bool CanResizeHorizontally => true;
 	public override bool CanResizeVertically => true;
 
-	private string _gridStyle
-	{
-		get
-		{
-			return $"display: grid; " +
-				$"grid-template-columns: {string.Join(" ", ColumnWidths)}; " +
-				$"grid-template-rows: {string.Join(" ", RowHeights)}; " +
-				$"gap: {Gap}px; ";
-		}
-	}
 	[Parameter]
 	public int Columns { get; set; } = 1;
 
@@ -38,6 +26,11 @@
 	[Parameter]
 	[PropertyGridUIEditor(typeof(UITypeEditors.StringArrayTypeEditor))]
 	public string[] RowHeights { get; set; } = new string[] { "1fr" };
+
+	public GridPanel()
+	{
+		Padding = new Models.Margin(30, 30, 30, 30);
+	}
 
 	protected override Task OnParametersSetAsync()
 	{
@@ -62,5 +55,16 @@
 		}
 
 		return base.OnParametersSetAsync();
+	}
+
+	protected override string GetStyle()
+	{
+		var style = base.GetStyle();
+		if (!PreviewMode)
+			style += $";display: grid; " +
+					 $"grid-template-columns: {string.Join(" ", ColumnWidths)}; " +
+					 $"grid-template-rows: {string.Join(" ", RowHeights)}; " +
+					 $"gap: {Gap}px; ";
+		return style;
 	}
 }

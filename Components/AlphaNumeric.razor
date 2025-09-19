@@ -29,4 +29,12 @@
 	public double Value { get; set; }
 
 	public override bool CanResizeHorizontally => true;
+
+	protected override string GetStyle()
+	{
+		string style = base.GetStyle();
+		if (PreviewMode)
+			style += ";Width:100%;Height:100%;";
+		return style;
+	}
 }

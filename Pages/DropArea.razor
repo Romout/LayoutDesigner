@@ -1,6 +1,7 @@
 ﻿@using LayoutDesigner.Components
 @using LayoutDesigner.Interfaces
 @using LayoutDesigner.Models
+@using System.Reflection
 @inherits LayoutComponent
 @implements ILayoutComponent
 
@@ -16,9 +17,12 @@
 			for (int i = 0; i < LayoutControlData.Children.Count; ++i)
 			{
 				int _i = i;
-				<div class="component draggable" draggable="true" @ondragstart="@(() => HandleDragStart(_i))" @ondrop:stopPropagation="LayoutControlData.Children[_i].IsContainer">
-					<LayoutControl LayoutControlData="LayoutControlData.Children[_i]" />
-				</div>
+				if (ChildVisible == null || ChildVisible(LayoutControlData.Children[_i]))
+				{
+					<div class="component draggable" draggable="true" @ondragstart="@(() => HandleDragStart(_i))" @ondrop:stopPropagation="LayoutControlData.Children[_i].IsContainer">
+						<LayoutControl LayoutControlData="LayoutControlData.Children[_i]" />
+					</div>
+				}
 			}
 		}
 </div>
@@ -27,6 +31,7 @@
 @code {
 	[Parameter] public string StyleClass { get; set; } = "drop-area-vertical";
 	[Parameter] public string style { get; set; } = "";
+	[Parameter] public Func<LayoutControlData, bool>? ChildVisible { get; set; } = c => true;
 
 	private string dropClass = "";
 	protected override void OnInitialized()
@@ -37,10 +42,28 @@
 
 	private void HandleDragEnter()
 	{
-		if (PreviewMode || (Container?.Payload != null && LayoutControlData != null && LayoutControlData.Children.Contains(Container.Payload)))
+		if (PreviewMode || (Container?.Payload != null && LayoutControlData != null && LayoutControlData.Children.Contains(Container.Payload)) || !CanDrop())
 			dropClass = "no-drop";
 		else
 			dropClass ="can-drop";
+
+	}
+
+	private bool CanDrop()
+	{
+		if (Container?.Payload != null && LayoutControlData != null)
+		{
+			MethodInfo method = LayoutControlData.Type.GetMethod("CanDropTypes", BindingFlags.Public | BindingFlags.Static);
+			if (method != null && method.ReturnType == typeof(Type[]))
+			{
+				Type[] canDropTypes = (Type[])method.Invoke(null, null);
+				if (canDropTypes != null && !canDropTypes.Contains(Container.Payload.Type))
+				{
+					return false;
+				}
+			}
+		}
+		return true;
 	}
 
 	private void HandleDragLeave()
@@ -50,7 +73,7 @@
 
 	private void HandleDrop()
 	{
-		if (LayoutControlData?.Children != null && Container?.Payload != null && !LayoutControlData.Children.Contains(Container.Payload))
+		if (LayoutControlData?.Children != null && Container?.Payload != null && !LayoutControlData.Children.Contains(Container.Payload) && CanDrop())
 		{
 			LayoutControlData.Children.Add(Container.Payload);
 

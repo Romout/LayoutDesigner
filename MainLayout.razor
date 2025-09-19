@@ -15,7 +15,7 @@
 			<MudIconButton Icon="@Icons.Material.Filled.Save" Color="Color.Inherit" Edge="Edge.End" @onclick="Container.Save" id="save"/><label for="save">Save</label>
 			<MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Inherit" Edge="Edge.End" @onclick="Container.DeleteSelectedComponent" Disabled="Container?.Selection == null" id="delete"/><label for="delete">Delete</label>
 		</MudAppBar>
-		<MudDrawer Open="@true">
+		<MudDrawer Open="@true" Width="350px">
 			<ComponentList/>
 		</MudDrawer>
 		<MudMainContent> 

@@ -1,0 +1,67 @@
+﻿@using LayoutDesigner.Interfaces
+@using LayoutDesigner.Pages
+@using LayoutDesigner.Models
+@inherits LayoutComponent
+@implements ILayoutComponent
+@implements IDropAreaContainer
+
+<div class="tab-control">
+	<div class="tab-headers">
+		@if (LayoutControlData?.Children != null)
+		{
+			for (int i = 0; i < LayoutControlData.Children.Count; i++)
+			{
+				int j = i;
+				<button class="tab-header @(j == SelectedIndex ? "active" : "")"
+						@onclick="() => SelectTab(j)" @onclick:stopPropagation="true">
+						@LayoutControlData.Children[j].Parameters[nameof(TabPage.Title)]
+				</button>
+			}
+		}
+	</div>
+	<div>
+		<DropArea StyleClass="" PreviewMode="PreviewMode" DesignMode="DesignMode" style="@GetStyle()" ChildVisible="ShowTabPage"></DropArea>
+	</div>
+</div>
+@code {
+	[Parameter]
+	public int SelectedIndex { get; set; }
+
+	public TabControl()
+	{
+		Padding = new Models.Margin(30, 30, 30, 30);
+	}
+
+	private bool ShowTabPage(LayoutControlData child)
+	{
+		if (LayoutControlData?.Children == null || SelectedIndex < 0 || SelectedIndex >= LayoutControlData.Children.Count)
+			return false;
+		return LayoutControlData.Children[SelectedIndex] == child;
+	}
+
+	protected override string GetStyle()
+	{
+		var style = base.GetStyle();
+		if (PreviewMode)
+			style += ";Width:100%;";
+		return style;
+	}
+
+	public static Type[] CanDropTypes()
+		=> new Type[] { typeof(TabPage) };
+
+
+	public override bool CanResizeHorizontally => true;
+	public override bool CanResizeVertically => true;
+
+	public void SelectTab(int index)
+	{
+		SelectedIndex = index;
+		if (LayoutControlData != null)
+		{
+			LayoutControlData.SetParameter(nameof(SelectedIndex), index);
+			if (DesignMode && Container != null && index >= 0 && index < LayoutControlData.Children.Count)
+				Container.Select(LayoutControlData.Children[index]);
+		}
+	}
+}

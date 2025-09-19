@@ -85,11 +85,13 @@
 		return false;
 	}
 
-	protected string GetStyle()
+	protected virtual string GetStyle()
 	{
 		var style = $"Margin: {Margin};Padding: {Padding};";
 		if (CanResize)
 			style += $"; Width: {Width}px; Height: {Height}px;";
+		if (PreviewMode)
+			style += ";Width:100%;";
 		return style;
 	}
 }

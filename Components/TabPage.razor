@@ -1,0 +1,24 @@
+﻿@using LayoutDesigner.Interfaces
+@inherits LayoutComponent
+@implements ILayoutComponent
+
+<div class="tab-page">
+	<DropArea StyleClass="drop-area-tab-page" PreviewMode="PreviewMode" DesignMode="DesignMode" style="@GetStyle()"></DropArea>
+</div>
+@code {
+	[Parameter]
+	public string Title { get; set; } = "Tab Page";
+
+	public TabPage()
+	{
+		Padding = new Models.Margin(10, 10, 10, 10);
+	}
+
+	protected override string GetStyle()
+	{
+		var style = base.GetStyle();
+		style += "Width:1000px;Height:1000px;";
+		return style;
+	}
+
+}

@@ -1,0 +1,9 @@
+﻿.tab-control {
+	border: 4px solid blue;
+}
+
+.tab-control > * > .tab-page {
+	width: 100%;
+	height: 100%;
+	background-color: red;
+}

@@ -4,8 +4,12 @@
 @implements ILayoutComponent
 @implements IDropAreaContainer
 
-<DropArea StyleClass="drop-area-vertical" PreviewMode="PreviewMode" DesignMode="DesignMode"></DropArea>
+<DropArea StyleClass="drop-area-vertical" PreviewMode="PreviewMode" DesignMode="DesignMode" style="@GetStyle()"></DropArea>
 
 @code {
 
+	public VerticalPanel()
+	{
+		Padding = new Models.Margin(30, 30, 30, 30);
+	}
 }
